@@ -1,0 +1,164 @@
+---
+title: "hw1"
+author: "zihao12"
+date: "2021-04-04"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r message=FALSE, warning=FALSE}
+rm(list = ls())
+set.seed(123)
+library(imager)
+```
+
+
+## Problem 1  
+
+```{r}
+simulate_tusk <- function(f, n = 1000){
+  k = length(f)
+  return(t(matrix(rbinom(n = n*k, size = 1, prob = f), nrow = k)))
+}
+
+simulate_p1 <- function(fS, fF, nF,nS){
+  forest <- simulate_tusk(f = fF, n = nF)
+  savan <- simulate_tusk(f = fS,n = nS)
+  X = rbind(forest, savan)
+  y = c(replicate(nF, 1), replicate(nS,0)) ## forest is 1, savana is 0
+  return(list(X = X, y = y))
+}
+
+classifier_lr <- function(data, fS, fF){
+  X = data$X 
+  y = data$y
+  ## compute loglikelihood for each sample, for model S & F respectively
+  llS <-  rowSums(X %*% diag(log(fS)) + (1 - X) %*% diag(log(1-fS)))
+  llF <-  rowSums(X %*% diag(log(fF)) + (1 - X) %*% diag(log(1-fF)))
+  ## compute LR for each sample
+  LR = exp(llF - llS)
+  return(LR)  
+}
+
+experiment_p1 <- function(fS, fF, nF,nS, cs, seed = 123){
+  set.seed(seed)
+  data <- simulate_p1(fS, fF, nF,nS)
+  LR <- classifier_lr(data, fS, fF)
+  err_rates <- c()
+  for(c in cs){
+    yhat <- (LR > c)
+    err_rate <- mean(yhat != data$y)
+    err_rates <- c(err_rates, err_rate)
+  }
+  return(err_rates)
+}
+
+```
+
+### (a)
+```{r}
+fS = c(0.40, 0.12,0.21,0.12,0.02,0.32)
+fF = c(0.8,0.2,0.11,0.17,0.23,0.25)
+log10_cs = seq(-2, 2, by = 0.001)
+
+err_rate = experiment_p1(fS = fS, fF = fF, nF = 1000, nS = 1000,
+              cs = 10^log10_cs)
+
+plot(log10_cs, err_rate, type = "l",
+     xlab = "log10(c)",ylab = "err_rate", main = "log10(c) vs error rate")
+
+c_min = 10^(log10_cs[which.min(err_rate)])
+print(sprintf("minimizer of error rate is c = %f, with error rate =  %f", c_min, min(err_rate)))
+```
+
+### (b)
+```{r}
+log10_cs = seq(-6, 0, by = 0.001)
+
+err_rate = experiment_p1(fS = fS, fF = fF, nF = 1900, nS = 100,
+              cs = 10^log10_cs)
+
+plot(log10_cs, err_rate, type = "l",
+     xlab = "log10(c)",ylab = "err_rate", main = "log10(c) vs error rate")
+
+c_min = 10^(log10_cs[which.min(err_rate)])
+print(sprintf("minimizer of error rate is c = %f, with error rate =  %f", c_min, min(err_rate)))
+```
+
+* The minimizer is $c = 0$ (i.e. classifiying every sample as Forest). Why? Because the Forest has way more samples, and that the LRs for Savana's LRs are not separable from that of Forest.  
+
+* Specifically, if we want to correctly classify any Savana sample (i.e. set a larger $c$), we would sacrifice more mistakes among Forest samples, as can be seen clearly from the histogram below. 
+
+* Therefore to make the least mistakes, the best decision rule is to classify everything as Forest. 
+
+```{r}
+data  <- simulate_p1(fS, fF, nF = 1900, nS = 100)
+LR = classifier_lr(data, fS, fF)
+hF <- hist(LR[1:1900],plot = FALSE,breaks = 30)
+hS <- hist(LR[1901:2000],plot = FALSE, breaks = 30)
+plot(hF, col = "red",xlab = "LR")
+plot(hS, col = "blue",add = TRUE)
+legend("topright",legend = c("Forest", "Savana"), 
+       col = c("red", "blue"), lty=1:1)
+```
+
+
+## Problem 2
+
+### (a) Load data and visualize
+```{r}
+load_data <- function(filename){
+  data = read.table(filename, header = FALSE)
+  X = as.matrix(data[, 2:257])
+  colnames(data) <- c("y", 1:256)
+  y = data[, 1]
+  return(list(X = X, y = y))
+}
+
+subset_23 <- function(data){
+  idx <- which(data$y %in% c(2,3))
+  return(list(X = data$X[idx,], y = (data$y[idx] == 2)))
+}
+
+plot_digit <- function(data, idx){
+  im <- matrix(as.numeric(data$X[idx,]), nrow = 16, ncol = 16)
+  image(t(apply(-im,1,rev)),col=gray((0:32)/32), main = data$y[idx])
+}
+```
+
+
+```{r}
+data_test = load_data("data/zip.test")
+data_train = load_data("data/zip.train")
+
+par(mfrow = c(2,2))
+ids <- c(1,12,34,77)
+for(i in ids){
+  plot_digit(data_train, i)
+}
+```
+
+
+### (b) classfier for digits 2 & 3
+get the subset of data with labels 2 or 3
+```{r}
+data_train23 = subset_23(data_train)
+data_test23 = subset_23(data_test)
+```
+
+Logistic regression
+
+```{r}
+fit <- glm(y ~ X, family=binomial(link='logit'), data = data_train23)
+pred <- predict.glm(fit, newdata = data.frame(data_test23$X), type = "response")
+```
+
+
+```{r}
+fit_logistic <- glm(data_train23$y ~ data_train23$X,family=binomial(link='logit'))
+pred_X = data.frame(data_test23$X)
+colnames(pred_X) <- 
+pred_logistic <- predict.glm(fit_logistic, newdata = , type = "response")
+```
+
