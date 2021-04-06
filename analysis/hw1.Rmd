@@ -226,18 +226,21 @@ data.frame(model = models, k = ks, err_train = err_train, err_test = err_test)
 ### (3) use CV to choose k for KNN
 I will use 10-fold cross validation
 ```{r}
-knn_cv <- function(data_train, k, d = 10){
+knn_cv <- function(data_train, k, d = 10, cost = c(1,1)){
+  p0 =cost[1]/sum(cost)
   N = nrow(data_train)
   grp_size = floor(N/d)
-  errs <- 0
+  loss <- 0
   for(i in 1:d){
     start = grp_size*(i-1)
     end = ifelse(i < d, grp_size*i, d)
     idx = start:end
-    yhat_test <- class::knn(data_train[-idx, 2:257], data_train[idx, 2:257], data_train[-idx,1], k = k)
-    errs = errs +  sum( yhat_test != data_train$y[idx])
+    pred <- class::knn(data_train[-idx, 2:257], data_train[idx, 2:257], data_train[-idx,1], k = k, prob = TRUE)
+    yhat <- knn_pred(pred, p0)
+    loss = loss +  
+      compute_loss(data_train$y[idx], yhat, cost) * length(yhat)
   }
-  return(errs/N)
+  return(loss/N)
 }
 
 err_cv <- c()
@@ -257,6 +260,6 @@ Compare the expected loss for the two actions under the new loss (below $p$ is t
 & E(L(y,\hat{y} = 2)) = (1 - p) * \text{cost of misclassifying 3 as 2} = (1-p)\\
 & & E(L(y,\hat{y} = 3)) = p * \text{cost of misclassifying 2 as 3} = 5p
 \end{align}
-Therefore we predict $\hat{y] = 2$ when $\hat{p} \geq \frac{1}{6}$
+Therefore we predict $\hat{y} = 2$ when $\hat{p} \geq \frac{1}{6}$
 
 ## Problem C  
