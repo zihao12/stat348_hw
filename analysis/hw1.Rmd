@@ -151,6 +151,13 @@ data_test23 = subset_23(data_test)
 
 #### fit with Logistic regression
 ```{r}
+compute_loss <- function(y,yhat, cost){
+  diff <- y - yhat
+  loss = cost[1] * sum(diff == 1) + cost[2] * sum(diff == -1)
+  return(loss/length(y))
+}
+
+
 ## cost[1] is for (y, yhat) = (1, 0)
 ## cost[2] is for (y, yhat) = (0, 1)
 classifier_logistic <- function(data_train, data_test, cost = c(1,1)){
@@ -159,10 +166,12 @@ classifier_logistic <- function(data_train, data_test, cost = c(1,1)){
   phat_train <- predict.glm(fit, newdata = data_train[,2:257], type = "response")
   p0 = cost[1]/sum(cost)
   yhat_train <- (phat_train > p0)
-  err_train = mean(yhat_train != data_train$y)
+  # err_train = mean(yhat_train != data_train$y)
+  loss_train <- compute_loss(data_train$y, yhat_train, cost)
   yhat_test <- (phat_test > p0)
-  err_test = mean(yhat_test != data_test$y)
-  return(list(err_test = err_test, err_train = err_train))
+  # err_test = mean(yhat_test != data_test$y)
+  loss_test <- compute_loss(data_test$y, yhat_test, cost)
+  return(list(loss_test = loss_test, loss_train = loss_train))
 }
 
 outcome_logistic = classifier_logistic(data_train23, data_test23)
@@ -172,23 +181,39 @@ outcome_logistic = classifier_logistic(data_train23, data_test23)
 
 #### fit with K-NN
 ```{r}
-classifier_knn <- function(data_train, data_test, k){
-  yhat_test <- class::knn(data_train[, 2:257], data_test[,2:257], data_train[,1], k = k)
-  err_test = mean( yhat_test != data_test$y)
-  yhat_train <- class::knn(data_train[, 2:257], data_train[, 2:257], data_train[,1], k = k)
-  err_train = mean( yhat_train != data_train$y)
-  return(list(err_test = err_test, err_train = err_train))
+## given knn output (with prob = T), make prediction based on cutoff probability
+knn_pred <- function(pred, p0){
+  winning = as.numeric(pred) - 1 ## the prediction is 1 & 2,which should be 0 & 1
+  phat = attr(pred,"prob") ## its prob for the winning class
+  phat = winning * phat + (1-winning) * (1 - phat)
+  yhat  <- (phat > p0)
+  return(yhat)
+}
+
+
+classifier_knn <- function(data_train, data_test, k, cost = c(1,1)){
+  p0 = cost[1]/sum(cost)
+  ## fit and predict on test data
+  pred_test <- class::knn(data_train[, 2:257], data_test[,2:257], data_train[,1], k = k, prob = TRUE) 
+  yhat_test <- knn_pred(pred_test, p0)
+  loss_test <- compute_loss(data_test$y, yhat_test, cost)
+  
+  ## do the same for training data
+  pred_train <- class::knn(data_train[, 2:257], data_train[, 2:257], data_train[,1], k = k, prob = TRUE)
+  yhat_train <- knn_pred(pred_train, p0)
+  loss_train <- compute_loss(data_train$y, yhat_train, cost)
+  return(list(loss_test = loss_test, loss_train = loss_train))
 }
 
 ks <- c(NA, 1,3,5,7,15)
 models <- c("logistic", replicate(5, "KNN"))
-err_train <- c(outcome_logistic$err_train)
-err_test <- c(outcome_logistic$err_test)
+err_train <- c(outcome_logistic$loss_train)
+err_test <- c(outcome_logistic$loss_test)
 
 for(i in 2:length(ks)){
   out <- classifier_knn(data_train23, data_test23, ks[i])
-  err_train <- c(err_train, out$err_train)
-  err_test <- c(err_test, out$err_test)
+  err_train <- c(err_train, out$loss_train)
+  err_test <- c(err_test, out$loss_test)
 }
 ```
 
