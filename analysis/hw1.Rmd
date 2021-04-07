@@ -103,7 +103,7 @@ legend("topright",legend = c("Forest", "Savana"),
 ```
 
 
-## Problem 2
+## Problem B
 
 ### (1) Load data and visualize
 ```{r}

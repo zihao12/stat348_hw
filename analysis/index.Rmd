@@ -9,3 +9,5 @@ editor_options:
 ---
 
 Welcome to my research website.
+
+* [hw1](https://zihao12.github.io/stat348_hw/hw1)
