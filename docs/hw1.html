@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong2fa02a9"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 2fa02a9 </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongbced1c8"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> bced1c8 </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong2fa02a9" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongbced1c8" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 2fa02a9. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version bced1c8. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -558,6 +558,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+bced1c8
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+<td>
+hw1 done and add index
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+f0b7944
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -704,6 +738,43 @@ err_rate = experiment_p1(fS = fS, fF = fF, nF = 1000, nS = 1000,
 plot(log10_cs, err_rate, type = &quot;l&quot;,
      xlab = &quot;log10(c)&quot;,ylab = &quot;err_rate&quot;, main = &quot;log10(c) vs error rate&quot;)</code></pre>
 <p><img src="figure/hw1.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-3-1">
+Past versions of unnamed-chunk-3-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+f0b7944
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>c_min = 10^(log10_cs[which.min(err_rate)])
 print(sprintf(&quot;minimizer of error rate is c = %f, with error rate =  %f&quot;, c_min, min(err_rate)))</code></pre>
 <pre><code>[1] &quot;minimizer of error rate is c = 0.829851, with error rate =  0.269500&quot;</code></pre>
@@ -718,6 +789,43 @@ err_rate = experiment_p1(fS = fS, fF = fF, nF = 1900, nS = 100,
 plot(log10_cs, err_rate, type = &quot;l&quot;,
      xlab = &quot;log10(c)&quot;,ylab = &quot;err_rate&quot;, main = &quot;log10(c) vs error rate&quot;)</code></pre>
 <p><img src="figure/hw1.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
+Past versions of unnamed-chunk-4-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+f0b7944
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>c_min = 10^(log10_cs[which.min(err_rate)])
 print(sprintf(&quot;minimizer of error rate is c = %f, with error rate =  %f&quot;, c_min, min(err_rate)))</code></pre>
 <pre><code>[1] &quot;minimizer of error rate is c = 0.000001, with error rate =  0.050000&quot;</code></pre>
@@ -735,10 +843,47 @@ plot(hS, col = &quot;blue&quot;,add = TRUE)
 legend(&quot;topright&quot;,legend = c(&quot;Forest&quot;, &quot;Savana&quot;), 
        col = c(&quot;red&quot;, &quot;blue&quot;), lty=1:1)</code></pre>
 <p><img src="figure/hw1.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+f0b7944
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
-<div id="problem-2" class="section level2">
-<h2>Problem 2</h2>
+</div>
+</div>
+<div id="problem-b" class="section level2">
+<h2>Problem B</h2>
 <div id="load-data-and-visualize" class="section level3">
 <h3>(1) Load data and visualize</h3>
 <pre class="r"><code>load_data &lt;- function(filename){
@@ -768,6 +913,43 @@ for(i in ids){
   plot_digit(data_train, i)
 }</code></pre>
 <p><img src="figure/hw1.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+f0b7944
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="classfier-for-digits-2-3" class="section level3">
 <h3>(2) classfier for digits 2 &amp; 3</h3>
@@ -864,6 +1046,43 @@ points(ks[2:length(ks)], err_train[2:length(ks)], col = &quot;blue&quot;)
 abline(h = err_train[1], lty = 3, col = &quot;red&quot;) 
 abline(h = err_test[1], lty = 3, col = &quot;red&quot;) </code></pre>
 <p><img src="figure/hw1.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+f0b7944
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="use-cv-to-choose-k-for-knn" class="section level3">
