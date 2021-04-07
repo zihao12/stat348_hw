@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="zihao12" />
+
+<meta name="date" content="2021-04-04" />
+
+<title>hw1</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">stat348_hw</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">hw1</h1>
+<h4 class="author">zihao12</h4>
+<h4 class="date">2021-04-04</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2021-04-06
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>stat348_hw/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20210404code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20210404)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20210404code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20210404)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong2fa02a9"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 2fa02a9 </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrong2fa02a9" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version 2fa02a9. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  data/four_salmon_pops.csv
+    Untracked:  data/zip.test
+    Untracked:  data/zip.train
+    Untracked:  script/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/hw1.Rmd</code>) and HTML (<code>docs/hw1.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+2fa02a9
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+<td>
+hw1 done
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+60b1659
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+<td>
+update hw1
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+0b71cfd
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+<td>
+update hw1
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+737d6a3
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+<td>
+update hw1
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+99b058b
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-04
+</td>
+<td>
+hw1
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>rm(list = ls())
+set.seed(123)
+library(imager)
+library(class)</code></pre>
+<div id="problem-a" class="section level2">
+<h2>Problem A</h2>
+<pre class="r"><code>simulate_tusk &lt;- function(f, n = 1000){
+  k = length(f)
+  return(t(matrix(rbinom(n = n*k, size = 1, prob = f), nrow = k)))
+}
+
+simulate_p1 &lt;- function(fS, fF, nF,nS){
+  forest &lt;- simulate_tusk(f = fF, n = nF)
+  savan &lt;- simulate_tusk(f = fS,n = nS)
+  X = rbind(forest, savan)
+  y = c(replicate(nF, 1), replicate(nS,0)) ## forest is 1, savana is 0
+  return(list(X = X, y = y))
+}
+
+classifier_lr &lt;- function(data, fS, fF){
+  X = data$X 
+  y = data$y
+  ## compute loglikelihood for each sample, for model S &amp; F respectively
+  llS &lt;-  rowSums(X %*% diag(log(fS)) + (1 - X) %*% diag(log(1-fS)))
+  llF &lt;-  rowSums(X %*% diag(log(fF)) + (1 - X) %*% diag(log(1-fF)))
+  ## compute LR for each sample
+  LR = exp(llF - llS)
+  return(LR)  
+}
+
+experiment_p1 &lt;- function(fS, fF, nF,nS, cs, seed = 123){
+  set.seed(seed)
+  data &lt;- simulate_p1(fS, fF, nF,nS)
+  LR &lt;- classifier_lr(data, fS, fF)
+  err_rates &lt;- c()
+  for(c in cs){
+    yhat &lt;- (LR &gt; c)
+    err_rate &lt;- mean(yhat != data$y)
+    err_rates &lt;- c(err_rates, err_rate)
+  }
+  return(err_rates)
+}</code></pre>
+<div id="section" class="section level3">
+<h3>(1)</h3>
+<pre class="r"><code>fS = c(0.40, 0.12,0.21,0.12,0.02,0.32)
+fF = c(0.8,0.2,0.11,0.17,0.23,0.25)
+log10_cs = seq(-2, 2, by = 0.001)
+
+err_rate = experiment_p1(fS = fS, fF = fF, nF = 1000, nS = 1000,
+              cs = 10^log10_cs)
+
+plot(log10_cs, err_rate, type = &quot;l&quot;,
+     xlab = &quot;log10(c)&quot;,ylab = &quot;err_rate&quot;, main = &quot;log10(c) vs error rate&quot;)</code></pre>
+<p><img src="figure/hw1.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>c_min = 10^(log10_cs[which.min(err_rate)])
+print(sprintf(&quot;minimizer of error rate is c = %f, with error rate =  %f&quot;, c_min, min(err_rate)))</code></pre>
+<pre><code>[1] &quot;minimizer of error rate is c = 0.829851, with error rate =  0.269500&quot;</code></pre>
+</div>
+<div id="section-1" class="section level3">
+<h3>(2)</h3>
+<pre class="r"><code>log10_cs = seq(-6, 0, by = 0.001)
+
+err_rate = experiment_p1(fS = fS, fF = fF, nF = 1900, nS = 100,
+              cs = 10^log10_cs)
+
+plot(log10_cs, err_rate, type = &quot;l&quot;,
+     xlab = &quot;log10(c)&quot;,ylab = &quot;err_rate&quot;, main = &quot;log10(c) vs error rate&quot;)</code></pre>
+<p><img src="figure/hw1.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>c_min = 10^(log10_cs[which.min(err_rate)])
+print(sprintf(&quot;minimizer of error rate is c = %f, with error rate =  %f&quot;, c_min, min(err_rate)))</code></pre>
+<pre><code>[1] &quot;minimizer of error rate is c = 0.000001, with error rate =  0.050000&quot;</code></pre>
+<ul>
+<li><p>The minimizer is <span class="math inline">\(c = 0\)</span> (i.e. classifiying every sample as Forest). Why? Because the Forest has way more samples, and that the LRs for Savana’s LRs are not separable from that of Forest.</p></li>
+<li><p>Specifically, if we want to correctly classify any Savana sample (i.e. set a larger <span class="math inline">\(c\)</span>), we would sacrifice more mistakes among Forest samples, as can be seen clearly from the histogram below.</p></li>
+<li><p>Therefore to make the least mistakes, the best decision rule is to classify everything as Forest.</p></li>
+</ul>
+<pre class="r"><code>data  &lt;- simulate_p1(fS, fF, nF = 1900, nS = 100)
+LR = classifier_lr(data, fS, fF)
+hF &lt;- hist(LR[1:1900],plot = FALSE,breaks = 30)
+hS &lt;- hist(LR[1901:2000],plot = FALSE, breaks = 30)
+plot(hF, col = &quot;red&quot;,xlab = &quot;LR&quot;)
+plot(hS, col = &quot;blue&quot;,add = TRUE)
+legend(&quot;topright&quot;,legend = c(&quot;Forest&quot;, &quot;Savana&quot;), 
+       col = c(&quot;red&quot;, &quot;blue&quot;), lty=1:1)</code></pre>
+<p><img src="figure/hw1.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="problem-2" class="section level2">
+<h2>Problem 2</h2>
+<div id="load-data-and-visualize" class="section level3">
+<h3>(1) Load data and visualize</h3>
+<pre class="r"><code>load_data &lt;- function(filename){
+  data = read.table(filename, header = FALSE)
+  data &lt;- data.frame(data)
+  colnames(data) &lt;- c(&quot;y&quot;, 1:256)
+  return(data)
+}
+
+subset_23 &lt;- function(data){
+  idx &lt;- which(data$y %in% c(2,3))
+  data &lt;- data[idx, ]
+  data$y &lt;- (data$y == 2)
+  return(data)
+}
+
+plot_digit &lt;- function(data, idx){
+  im &lt;- matrix(as.numeric(data[idx,2:257]), nrow = 16, ncol = 16)
+  image(t(apply(-im,1,rev)),col=gray((0:32)/32), main = data$y[idx])
+}</code></pre>
+<pre class="r"><code>data_test = load_data(&quot;data/zip.test&quot;)
+data_train = load_data(&quot;data/zip.train&quot;)
+
+par(mfrow = c(2,2))
+ids &lt;- c(1,12,34,77)
+for(i in ids){
+  plot_digit(data_train, i)
+}</code></pre>
+<p><img src="figure/hw1.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="classfier-for-digits-2-3" class="section level3">
+<h3>(2) classfier for digits 2 &amp; 3</h3>
+<p>get the subset of data with labels 2 or 3</p>
+<pre class="r"><code>data_train23 = subset_23(data_train)
+data_test23 = subset_23(data_test)</code></pre>
+<div id="fit-with-logistic-regression" class="section level4">
+<h4>fit with Logistic regression</h4>
+<pre class="r"><code>compute_loss &lt;- function(y,yhat, cost){
+  diff &lt;- y - yhat
+  loss = cost[1] * sum(diff == 1) + cost[2] * sum(diff == -1)
+  return(loss/length(y))
+}
+
+## use fitted glm model and cost to predict yhat, and compute loss
+pred_logistic &lt;- function(fit, cost, new_data, y){
+  p0 = cost[2]/sum(cost)
+  phat &lt;- predict.glm(fit, newdata = new_data, type = &quot;response&quot;)
+  yhat &lt;- (phat &gt; p0)
+  loss &lt;- compute_loss(y, yhat, cost)
+  return(list(yhat = yhat, loss = loss))
+}
+
+## cost[1] is for (y, yhat) = (1, 0)
+## cost[2] is for (y, yhat) = (0, 1)
+classifier_logistic &lt;- function(data_train, data_test, cost = c(1,1)){
+  fit &lt;- glm(y ~ ., family=binomial(link=&#39;logit&#39;), data = data_train)
+  pred_train &lt;- pred_logistic(fit = fit, cost = cost, 
+                              new_data = data_train[,2:257], y = data_train$y)
+  pred_test &lt;- pred_logistic(fit = fit, cost = cost, 
+                              new_data = data_test[,2:257], y = data_test$y)
+  return(list(loss_test = pred_test$loss, loss_train = pred_train$loss, 
+              yhat_test = pred_test$yhat, yhat_train = pred_train$yhat, fit = fit))
+}
+
+outcome_logistic = classifier_logistic(data_train23, data_test23)</code></pre>
+<pre><code>Warning: glm.fit: algorithm did not converge</code></pre>
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<ul>
+<li>Note: by the numerical 0/1 and the 0 error rate, we know the 2 &amp; 3’s are perfectly separable.</li>
+</ul>
+</div>
+<div id="fit-with-k-nn" class="section level4">
+<h4>fit with K-NN</h4>
+<pre class="r"><code>## given knn output (with prob = T), make prediction based on cutoff probability
+pred_knn &lt;- function(fit, y, cost){
+  p0 = cost[2]/sum(cost)
+  winning = as.numeric(fit) - 1 ## the prediction is 1 &amp; 2,which should be 0 &amp; 1
+  phat = attr(fit,&quot;prob&quot;) ## its prob for the winning class
+  phat = winning * phat + (1-winning) * (1 - phat)
+  yhat  &lt;- (phat &gt; p0)
+  loss &lt;- compute_loss(y, yhat, cost)
+  return(list(loss =loss, yhat = yhat))
+}
+
+classifier_knn &lt;- function(data_train, data_test, k, cost = c(1,1)){
+  p0 = cost[2]/sum(cost)
+  ## fit and predict on test data
+  fit_test &lt;- class::knn(data_train[, 2:257], data_test[,2:257], data_train[,1], k = k, prob = TRUE) 
+  pred_test &lt;- pred_knn(fit = fit_test, y = data_test$y, cost= cost)
+  
+  ## do the same for training data
+  fit_train &lt;- class::knn(data_train[, 2:257], data_train[, 2:257], data_train[,1], k = k, prob = TRUE)
+  pred_train &lt;- pred_knn(fit = fit_train, y = data_train$y, cost= cost)
+  return(list(loss_test = pred_test$loss, loss_train = pred_train$loss, 
+              yhat_test = pred_test$yhat, yhat_train = pred_train$yhat, 
+              fit_test = fit_test, fit_train = fit_train))
+}
+
+ks &lt;- c(NA, 1,3,5,7,15)
+models &lt;- c(&quot;logistic&quot;, replicate(5, &quot;KNN&quot;))
+err_train &lt;- c(outcome_logistic$loss_train)
+err_test &lt;- c(outcome_logistic$loss_test)
+
+for(i in 2:length(ks)){
+  out &lt;- classifier_knn(data_train23, data_test23, ks[i])
+  err_train &lt;- c(err_train, out$loss_train)
+  err_test &lt;- c(err_test, out$loss_test)
+}</code></pre>
+</div>
+<div id="summarize-results" class="section level4">
+<h4>summarize results</h4>
+<p>In the plot below red and blue dots are KNN test err and training err; the upper line is test error for glm and the bottom line (which is <span class="math inline">\(0\)</span>) is training error for glm.</p>
+<pre class="r"><code>data.frame(model = models, k = ks, err_train = err_train, err_test = err_test)</code></pre>
+<pre><code>     model  k   err_train   err_test
+1 logistic NA 0.000000000 0.05494505
+2      KNN  1 0.000000000 0.02472527
+3      KNN  3 0.005039597 0.03021978
+4      KNN  5 0.005759539 0.03021978
+5      KNN  7 0.006479482 0.03296703
+6      KNN 15 0.009359251 0.03846154</code></pre>
+<pre class="r"><code>plot(ks[2:length(ks)], err_test[2:length(ks)], col = &quot;red&quot;, xlab = &quot;k&quot;, ylab = &quot;err rate&quot;, ylim = c(0, 0.06))
+points(ks[2:length(ks)], err_train[2:length(ks)], col = &quot;blue&quot;)
+abline(h = err_train[1], lty = 3, col = &quot;red&quot;) 
+abline(h = err_test[1], lty = 3, col = &quot;red&quot;) </code></pre>
+<p><img src="figure/hw1.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="use-cv-to-choose-k-for-knn" class="section level3">
+<h3>(3) use CV to choose k for KNN</h3>
+<p>I will use 10-fold cross-validation</p>
+<pre class="r"><code>knn_cv &lt;- function(data_train, k, d = 10, cost = c(1,1)){
+  N = nrow(data_train)
+  grp_size = floor(N/d)
+  loss &lt;- 0
+  for(i in 1:d){
+    start = grp_size*(i-1)
+    end = ifelse(i &lt; d, grp_size*i, d)
+    idx = start:end
+    fit &lt;- class::knn(data_train[-idx, 2:257], data_train[idx, 2:257], data_train[-idx,1], k = k, prob = TRUE)
+    loss = loss +  
+      length(data_train$y[idx]) * pred_knn(fit = fit, y = data_train$y[idx], cost = cost)$loss
+  }
+  return(loss/N)
+}
+
+err_cv &lt;- c()
+ks &lt;- c(1,3,5,7,15)
+for(k in ks){
+  err_cv &lt;- c(err_cv, knn_cv(data_train23, k))
+}
+err_cv</code></pre>
+<pre><code>[1] 0.03671706 0.03455724 0.03239741 0.04319654 0.04895608</code></pre>
+<ul>
+<li><p>From the CV result above, <span class="math inline">\(k = 3\)</span> is the best choice (tried 10-fold CV and also have <span class="math inline">\(K = 3\)</span> is the best).</p></li>
+<li><p>It’s not in agreement with the test data, but not off by much.</p></li>
+</ul>
+</div>
+<div id="modify-classifier-according-to-loss" class="section level3">
+<h3>(4) modify classifier according to loss</h3>
+Compare the expected loss for the two actions under the new loss (below <span class="math inline">\(p\)</span> is the probability for being 2, estimated by <span class="math inline">\(\hat{p}\)</span> from the model):
+<span class="math display">\[\begin{align}
+&amp; E(L(y,\hat{y} = 2)) = (1 - p) * \text{cost of misclassifying 3 as 2} = (1-p)\\
+&amp; E(L(y,\hat{y} = 3)) = p * \text{cost of misclassifying 2 as 3} = 5p
+\end{align}\]</span>
+<p>Therefore we predict <span class="math inline">\(\hat{y} = 2\)</span> when <span class="math inline">\(\hat{p} \geq \frac{1}{6}\)</span>.</p>
+<p>For both logistic regression and KNN I already incorporated cost in the functions above.</p>
+<div id="logistic-regression" class="section level4">
+<h4>logistic regression</h4>
+<pre class="r"><code>loss_new = outcome_logistic_cost = classifier_logistic(data_train23, data_test23, cost = c(1, 5))$loss_test</code></pre>
+<pre><code>Warning: glm.fit: algorithm did not converge</code></pre>
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+<pre class="r"><code>loss_old = compute_loss(y = data_test23[,1], yhat = outcome_logistic$yhat_test, cost = c(1,5))
+
+print(sprintf(&quot;average test err old vs new: %f vs %f&quot;, loss_new, loss_old))</code></pre>
+<pre><code>[1] &quot;average test err old vs new: 0.153846 vs 0.175824&quot;</code></pre>
+</div>
+<div id="knn" class="section level4">
+<h4>KNN</h4>
+<p>I compared a couple of KNN’s below</p>
+<pre class="r"><code>compare_knn_new_old &lt;- function(k){
+  print(sprintf(&quot;%d-KNN:&quot;, k))
+  fit &lt;- class::knn(data_train23[, 2:257], data_test23[,2:257], data_train23[,1], k = k, prob = TRUE) 
+  pred_old &lt;- pred_knn(fit = fit, y = data_test23[,1], cost = c(1,1))
+  pred_new &lt;- pred_knn(fit = fit, y = data_test23[,1], cost = c(5,1))
+  
+  loss_old = compute_loss(y = data_test23[,1], yhat = pred_old$yhat, cost = c(5,1))
+  loss_new = pred_new$loss
+  
+  print(sprintf(&quot;average test err old vs new: %f vs %f&quot;, loss_new, loss_old))
+}
+
+for(k in ks){
+  compare_knn_new_old(k)
+}</code></pre>
+<pre><code>[1] &quot;1-KNN:&quot;
+[1] &quot;average test err old vs new: 0.090659 vs 0.090659&quot;
+[1] &quot;3-KNN:&quot;
+[1] &quot;average test err old vs new: 0.071429 vs 0.107143&quot;
+[1] &quot;5-KNN:&quot;
+[1] &quot;average test err old vs new: 0.060440 vs 0.107143&quot;
+[1] &quot;7-KNN:&quot;
+[1] &quot;average test err old vs new: 0.082418 vs 0.131868&quot;
+[1] &quot;15-KNN:&quot;
+[1] &quot;average test err old vs new: 0.071429 vs 0.159341&quot;</code></pre>
+<p>Interesting that 1-KNN the cost does not matter: it turns out that the predicted <span class="math inline">\(\hat{y}\)</span> are the same for the two models. The test data is too easily separable (the fitted probability is very confident) for 1-KNN that even such an asymmetric cost does not matter much.</p>
+</div>
+</div>
+</div>
+<div id="problem-c" class="section level2">
+<h2>Problem C</h2>
+<div id="load-and-prepare-data-from-httpsgithub.comstephens999stat302blobmasterexercisesseebtrain_test.r." class="section level3">
+<h3>Load and prepare data (from <a href="https://github.com/stephens999/stat302/blob/master/exercises/seeb/train_test.R" class="uri">https://github.com/stephens999/stat302/blob/master/exercises/seeb/train_test.R</a>).</h3>
+<pre class="r"><code>data_preprocess &lt;- function(){
+  orig_data = read.table(&quot;data/four_salmon_pops.csv&quot;,header=TRUE,colClasses=&quot;character&quot;,sep=&quot;,&quot;)
+  set.seed(100) #to ensure reproducibility
+  
+  #Convert the data at each locus to a factor
+  #Note that we have to be careful to include all the levels from *both* columns
+  #for each locus
+  mylevels= function(locus){levels(factor(c(orig_data[,(1+2*locus)],
+                                            orig_data[,(2+2*locus)])))}
+  
+  #now set up four_salmon_pops
+  four_salmon_pops = orig_data
+  for(locus in 1:12){
+    four_salmon_pops[,1+2*locus]= factor(four_salmon_pops[,1+2*locus],levels = mylevels(locus))
+    four_salmon_pops[,2+2*locus]= factor(four_salmon_pops[,2+2*locus],levels = mylevels(locus))
+  }
+  
+  #Randomly divide the data into a training set and a test set
+  nsamp = nrow(four_salmon_pops)
+  subset = (rbinom(nsamp,1,0.5)==1) #include each fish in subset with probability 0.5
+  train = four_salmon_pops[subset,]
+  test = four_salmon_pops[!subset,]
+  return(list(train = train, test = test, whole = four_salmon_pops))
+}
+
+data  = data_preprocess()
+train = data$train
+test = data$test
+whole = data$whole</code></pre>
+</div>
+<div id="modeling" class="section level3">
+<h3>Modeling</h3>
+<ul>
+<li><p>Data representation: for each sample,let’s convert the data into count table. Say a sample <span class="math inline">\(i\)</span> and locus <span class="math inline">\(l\)</span> is a vector <span class="math inline">\(x_{il}\)</span> of length <span class="math inline">\(d_l\)</span> (number of possible alleles at locus <span class="math inline">\(l\)</span>). For example, if it has alleles <span class="math inline">\(a_1\)</span>, <span class="math inline">\(a_2\)</span>, <span class="math inline">\(x_{ilj} = 1\)</span> when <span class="math inline">\(j = a_1, a_2\)</span> and <span class="math inline">\(x_{ilj} = 1\)</span> otherwise.</p></li>
+<li><p>Hidden variable: introduce <span class="math inline">\(z_{i}\)</span> to denote where population sample <span class="math inline">\(i\)</span> belongs.</p></li>
+<li><p>Likelihood: Then we can model <span class="math inline">\(x_{il}\)</span> with a multinomial distribution: <span class="math inline">\(x_{il} | z_{i} = p \sim MN(2, \pi_{pl})\)</span> where <span class="math inline">\(\pi_{pl}\)</span> is the proportion of alleles in locus <span class="math inline">\(l\)</span> and population <span class="math inline">\(p\)</span>. Then we can write the likelihood as follows</p></li>
+</ul>
+<span class="math display">\[\begin{align}
+p(x_i | z_i= p) &amp; = \Pi_{l = 1}^{12} p(x_{il} | z_i = p)\\
+&amp; = \Pi_{l = 1}^{12} MN(x_{il}; 2, \pi_{pl})
+\end{align}\]</span>
+<ul>
+<li><p>Prior: since all four populations are equaly likeliy, then <span class="math inline">\(p(z_i = p) = 1/4\)</span>.</p></li>
+<li><p>Posterior:</p></li>
+</ul>
+<span class="math display">\[\begin{align}
+p(z_i = p | x_i) &amp; \propto p(x_i | z_i = p) p(z_i= p)\\
+&amp; \propto p(x_i | z_i = p)
+\end{align}\]</span>
+<p>Then since <span class="math inline">\(\sum_{p = 1}^4 p(z_i = p | x_i) = 1\)</span>, we have <span class="math display">\[  p(z_i = p | x_i) = \frac{p(x_i | z_i = p)}{\sum_{p^{&#39;}} p(x_i | z_i = p^{&#39;})}  \]</span></p>
+<pre class="r"><code>#this function computes a table of the alleles and their counts at a given locus (locus= 1...12)
+#in a given data frame (data)
+compute_counts = function(data,locus){
+  return(table(data[,1+2*locus]) + table(data[,2+2*locus]))
+}
+## this function converts counts to frequency (proportions)
+normalize= function(x){x/sum(x)}</code></pre>
+</div>
+<div id="compute-frequency-from-training-data" class="section level3">
+<h3>compute frequency from training data</h3>
+<ul>
+<li>Note I didn’t consider NA in the computig frequency (will be discussed in the end)</li>
+<li>I added small <span class="math inline">\(\epsilon\)</span> to those <span class="math inline">\(0\)</span> probabilities. <span class="math inline">\(0\)</span> may not be good estimate (indeed they appear in test data) and can cause numerical issues.</li>
+</ul>
+<pre class="r"><code>pop = unique(train$Population)
+nloc = 12
+
+freqs &lt;- list()
+for(i in 1:length(pop)){
+  data_sub = train[train$Population == pop[i], ]
+  f &lt;- list()
+  for(l in 1:nloc){
+    f_ = normalize(compute_counts(data_sub, l))
+    f_[f_ == 0] = 1e-8
+    f[[l]] = normalize(f_)
+  }
+  freqs[[i]] = f
+}</code></pre>
+</div>
+<div id="compute-posterior" class="section level3">
+<h3>compute posterior</h3>
+<ul>
+<li>The code is not optimized (uses many for loops) but is okay for this small problem…</li>
+</ul>
+<pre class="r"><code>prob_pos &lt;- matrix(NA, nrow = nrow(test), ncol = length(pop))
+
+for(i in 1:nrow(test)){
+  lls &lt;- replicate(length(pop), NA) ## store p(x_i | z_i = p) for each p
+  for(p in 1:length(pop)){
+    ll = 0
+    for(l in 1:nloc){
+       counts = compute_counts(test[i,], l)
+       if(sum(counts) == 2){ ## no missing
+         ll = ll + dmultinom(x = counts, size = 2, prob = freqs[[p]][[l]], log = TRUE)
+         if(is.nan(ll)){browser()}
+       }
+    }
+    lls[p] = ll
+  }
+  prob = exp(lls)/sum(exp(lls))
+  prob_pos[i,] &lt;- prob 
+}</code></pre>
+</div>
+<div id="prediction" class="section level3">
+<h3>prediction</h3>
+<p>The error rate is reported below</p>
+<pre class="r"><code>z_pred &lt;- apply(prob_pos, 1, which.max)
+err_rate = sum(pop[z_pred] != test$Population)/nrow(test)
+err_rate</code></pre>
+<pre><code>[1] 0.2649254</code></pre>
+</div>
+<div id="discussions" class="section level3">
+<h3>Discussions:</h3>
+<p>There are two challenges: <code>NA</code> in the data and problems caused by exact <span class="math inline">\(0\)</span> in allele frequency</p>
+<p>Problems from <code>NA</code></p>
+<ul>
+<li>There are <code>NA</code>’s in data, which can affect both estimated allele frequency from training data, and the likelihood for test data.</li>
+<li>I didn’t specifically model <code>NA</code>’s, except that checking if each <span class="math inline">\(x_{il}\)</span> sums to exactly 2 (otherwise it cannot be fitted by my model).</li>
+<li>However, with more background knowledge on the measurement, it might be the case that the data is not missing at random, where my model leads to biased estimate.</li>
+</ul>
+<p>Problem from allele frequency being exact 0’s:</p>
+<ul>
+<li>Estimate of allele frequency gives some exact 0’s, which is probably not true and causes numerical issues in test data (they appear in test data!)</li>
+<li>I added some constant <span class="math inline">\(10^{-8}\)</span> to those <span class="math inline">\(0\)</span>’s and re-normalize the probability vectors.</li>
+</ul>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.1 (2018-07-02)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS  10.15.7
+
+Matrix products: default
+BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] class_7.3-15    imager_0.42.8   magrittr_1.5    workflowr_1.6.2
+
+loaded via a namespace (and not attached):
+ [1] igraph_1.2.4.1   Rcpp_1.0.5       knitr_1.28       whisker_0.3-2   
+ [5] R6_2.4.1         jpeg_0.1-8.1     rlang_0.4.5      stringr_1.4.0   
+ [9] tools_3.5.1      xfun_0.8         png_0.1-7        git2r_0.26.1    
+[13] htmltools_0.5.0  yaml_2.2.0       digest_0.6.25    rprojroot_1.3-2 
+[17] bmp_0.3          purrr_0.3.4      later_1.1.0.1    promises_1.1.1  
+[21] fs_1.3.1         glue_1.4.1       evaluate_0.14    tiff_0.1-8      
+[25] rmarkdown_2.1    readbitmap_0.1.5 stringi_1.4.3    compiler_3.5.1  
+[29] backports_1.1.7  httpuv_1.5.4     pkgconfig_2.0.3 </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
