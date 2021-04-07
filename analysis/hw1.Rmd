@@ -16,7 +16,6 @@ library(class)
 
 
 ## Problem A
-
 ```{r}
 simulate_tusk <- function(f, n = 1000){
   k = length(f)
@@ -54,7 +53,6 @@ experiment_p1 <- function(fS, fF, nF,nS, cs, seed = 123){
   }
   return(err_rates)
 }
-
 ```
 
 ### (1)
@@ -157,21 +155,25 @@ compute_loss <- function(y,yhat, cost){
   return(loss/length(y))
 }
 
+## use fitted glm model and cost to predict yhat, and compute loss
+pred_logistic <- function(fit, cost, new_data, y){
+  p0 = cost[2]/sum(cost)
+  phat <- predict.glm(fit, newdata = new_data, type = "response")
+  yhat <- (phat > p0)
+  loss <- compute_loss(y, yhat, cost)
+  return(list(yhat = yhat, loss = loss))
+}
 
 ## cost[1] is for (y, yhat) = (1, 0)
 ## cost[2] is for (y, yhat) = (0, 1)
 classifier_logistic <- function(data_train, data_test, cost = c(1,1)){
   fit <- glm(y ~ ., family=binomial(link='logit'), data = data_train)
-  phat_test <- predict.glm(fit, newdata = data_test[,2:257], type = "response")
-  phat_train <- predict.glm(fit, newdata = data_train[,2:257], type = "response")
-  p0 = cost[1]/sum(cost)
-  yhat_train <- (phat_train > p0)
-  # err_train = mean(yhat_train != data_train$y)
-  loss_train <- compute_loss(data_train$y, yhat_train, cost)
-  yhat_test <- (phat_test > p0)
-  # err_test = mean(yhat_test != data_test$y)
-  loss_test <- compute_loss(data_test$y, yhat_test, cost)
-  return(list(loss_test = loss_test, loss_train = loss_train))
+  pred_train <- pred_logistic(fit = fit, cost = cost, 
+                              new_data = data_train[,2:257], y = data_train$y)
+  pred_test <- pred_logistic(fit = fit, cost = cost, 
+                              new_data = data_test[,2:257], y = data_test$y)
+  return(list(loss_test = pred_test$loss, loss_train = pred_train$loss, 
+              yhat_test = pred_test$yhat, yhat_train = pred_train$yhat, fit = fit))
 }
 
 outcome_logistic = classifier_logistic(data_train23, data_test23)
@@ -182,27 +184,28 @@ outcome_logistic = classifier_logistic(data_train23, data_test23)
 #### fit with K-NN
 ```{r}
 ## given knn output (with prob = T), make prediction based on cutoff probability
-knn_pred <- function(pred, p0){
-  winning = as.numeric(pred) - 1 ## the prediction is 1 & 2,which should be 0 & 1
-  phat = attr(pred,"prob") ## its prob for the winning class
+pred_knn <- function(fit, y, cost){
+  p0 = cost[2]/sum(cost)
+  winning = as.numeric(fit) - 1 ## the prediction is 1 & 2,which should be 0 & 1
+  phat = attr(fit,"prob") ## its prob for the winning class
   phat = winning * phat + (1-winning) * (1 - phat)
   yhat  <- (phat > p0)
-  return(yhat)
+  loss <- compute_loss(y, yhat, cost)
+  return(list(loss =loss, yhat = yhat))
 }
 
-
 classifier_knn <- function(data_train, data_test, k, cost = c(1,1)){
-  p0 = cost[1]/sum(cost)
+  p0 = cost[2]/sum(cost)
   ## fit and predict on test data
-  pred_test <- class::knn(data_train[, 2:257], data_test[,2:257], data_train[,1], k = k, prob = TRUE) 
-  yhat_test <- knn_pred(pred_test, p0)
-  loss_test <- compute_loss(data_test$y, yhat_test, cost)
+  fit_test <- class::knn(data_train[, 2:257], data_test[,2:257], data_train[,1], k = k, prob = TRUE) 
+  pred_test <- pred_knn(fit = fit_test, y = data_test$y, cost= cost)
   
   ## do the same for training data
-  pred_train <- class::knn(data_train[, 2:257], data_train[, 2:257], data_train[,1], k = k, prob = TRUE)
-  yhat_train <- knn_pred(pred_train, p0)
-  loss_train <- compute_loss(data_train$y, yhat_train, cost)
-  return(list(loss_test = loss_test, loss_train = loss_train))
+  fit_train <- class::knn(data_train[, 2:257], data_train[, 2:257], data_train[,1], k = k, prob = TRUE)
+  pred_train <- pred_knn(fit = fit_train, y = data_train$y, cost= cost)
+  return(list(loss_test = pred_test$loss, loss_train = pred_train$loss, 
+              yhat_test = pred_test$yhat, yhat_train = pred_train$yhat, 
+              fit_test = fit_test, fit_train = fit_train))
 }
 
 ks <- c(NA, 1,3,5,7,15)
@@ -218,16 +221,20 @@ for(i in 2:length(ks)){
 ```
 
 #### summarize results
-TODO: plot what?
+In the plot below red and blue dots are KNN test err and training err; the upper line is test error for glm and the bottom line (which is $0$) is training error for glm.   
 ```{r}
 data.frame(model = models, k = ks, err_train = err_train, err_test = err_test)
+
+plot(ks[2:length(ks)], err_test[2:length(ks)], col = "red", xlab = "k", ylab = "err rate", ylim = c(0, 0.06))
+points(ks[2:length(ks)], err_train[2:length(ks)], col = "blue")
+abline(h = err_train[1], lty = 3, col = "red") 
+abline(h = err_test[1], lty = 3, col = "red") 
 ```
 
 ### (3) use CV to choose k for KNN
-I will use 10-fold cross validation
+I will use 10-fold cross-validation
 ```{r}
 knn_cv <- function(data_train, k, d = 10, cost = c(1,1)){
-  p0 =cost[1]/sum(cost)
   N = nrow(data_train)
   grp_size = floor(N/d)
   loss <- 0
@@ -235,10 +242,9 @@ knn_cv <- function(data_train, k, d = 10, cost = c(1,1)){
     start = grp_size*(i-1)
     end = ifelse(i < d, grp_size*i, d)
     idx = start:end
-    pred <- class::knn(data_train[-idx, 2:257], data_train[idx, 2:257], data_train[-idx,1], k = k, prob = TRUE)
-    yhat <- knn_pred(pred, p0)
+    fit <- class::knn(data_train[-idx, 2:257], data_train[idx, 2:257], data_train[-idx,1], k = k, prob = TRUE)
     loss = loss +  
-      compute_loss(data_train$y[idx], yhat, cost) * length(yhat)
+      length(data_train$y[idx]) * pred_knn(fit = fit, y = data_train$y[idx], cost = cost)$loss
   }
   return(loss/N)
 }
@@ -251,15 +257,182 @@ for(k in ks){
 err_cv
 ```
 
-From the CV result above, $k = 3$ is the best choice. BUT not in agreement with the test data...
+* From the CV result above, $k = 3$ is the best choice (tried 10-fold CV and also have $K = 3$ is the best). 
+
+* It's not in agreement with the test data, but not off by much. 
 
 ### (4) modify classifier according to loss
 
 Compare the expected loss for the two actions under the new loss (below $p$ is the probability for being 2, estimated by $\hat{p}$ from the model):
 \begin{align}
 & E(L(y,\hat{y} = 2)) = (1 - p) * \text{cost of misclassifying 3 as 2} = (1-p)\\
-& & E(L(y,\hat{y} = 3)) = p * \text{cost of misclassifying 2 as 3} = 5p
+& E(L(y,\hat{y} = 3)) = p * \text{cost of misclassifying 2 as 3} = 5p
 \end{align}
-Therefore we predict $\hat{y} = 2$ when $\hat{p} \geq \frac{1}{6}$
+Therefore we predict $\hat{y} = 2$ when $\hat{p} \geq \frac{1}{6}$. 
+
+For both logistic regression and KNN I already incorporated cost in the functions above. 
+
+#### logistic regression
+```{r}
+loss_new = outcome_logistic_cost = classifier_logistic(data_train23, data_test23, cost = c(1, 5))$loss_test
+
+loss_old = compute_loss(y = data_test23[,1], yhat = outcome_logistic$yhat_test, cost = c(1,5))
+
+print(sprintf("average test err old vs new: %f vs %f", loss_new, loss_old))
+```
+
+#### KNN
+I compared a couple of KNN's below
+```{r}
+compare_knn_new_old <- function(k){
+  print(sprintf("%d-KNN:", k))
+  fit <- class::knn(data_train23[, 2:257], data_test23[,2:257], data_train23[,1], k = k, prob = TRUE) 
+  pred_old <- pred_knn(fit = fit, y = data_test23[,1], cost = c(1,1))
+  pred_new <- pred_knn(fit = fit, y = data_test23[,1], cost = c(5,1))
+  
+  loss_old = compute_loss(y = data_test23[,1], yhat = pred_old$yhat, cost = c(5,1))
+  loss_new = pred_new$loss
+  
+  print(sprintf("average test err old vs new: %f vs %f", loss_new, loss_old))
+}
+
+for(k in ks){
+  compare_knn_new_old(k)
+}
+```
+Interesting that 1-KNN the cost does not matter: it turns out that the predicted $\hat{y}$ are the same for the two models. The test data is too easily separable (the fitted probability is very confident) for 1-KNN that even such an asymmetric cost does not matter much. 
 
 ## Problem C  
+
+### Load and prepare data (from https://github.com/stephens999/stat302/blob/master/exercises/seeb/train_test.R). 
+```{r}
+data_preprocess <- function(){
+  orig_data = read.table("data/four_salmon_pops.csv",header=TRUE,colClasses="character",sep=",")
+  set.seed(100) #to ensure reproducibility
+  
+  #Convert the data at each locus to a factor
+  #Note that we have to be careful to include all the levels from *both* columns
+  #for each locus
+  mylevels= function(locus){levels(factor(c(orig_data[,(1+2*locus)],
+                                            orig_data[,(2+2*locus)])))}
+  
+  #now set up four_salmon_pops
+  four_salmon_pops = orig_data
+  for(locus in 1:12){
+    four_salmon_pops[,1+2*locus]= factor(four_salmon_pops[,1+2*locus],levels = mylevels(locus))
+    four_salmon_pops[,2+2*locus]= factor(four_salmon_pops[,2+2*locus],levels = mylevels(locus))
+  }
+  
+  #Randomly divide the data into a training set and a test set
+  nsamp = nrow(four_salmon_pops)
+  subset = (rbinom(nsamp,1,0.5)==1) #include each fish in subset with probability 0.5
+  train = four_salmon_pops[subset,]
+  test = four_salmon_pops[!subset,]
+  return(list(train = train, test = test, whole = four_salmon_pops))
+}
+
+data  = data_preprocess()
+train = data$train
+test = data$test
+whole = data$whole
+```
+
+### Modeling
+* Data representation: for each sample,let's convert the data into count table. Say a sample $i$ and locus $l$ is a vector $x_{il}$ of length $d_l$ (number of possible alleles at locus $l$). For example, if it has alleles $a_1$, $a_2$, $x_{ilj} = 1$ when $j = a_1, a_2$ and $x_{ilj} = 1$ otherwise. 
+
+* Hidden variable: introduce $z_{i}$ to denote where population sample $i$ belongs. 
+
+* Likelihood: Then we can model $x_{il}$ with a multinomial distribution: $x_{il} | z_{i} = p \sim MN(2, \pi_{pl})$ where $\pi_{pl}$ is the proportion of alleles in locus $l$ and population $p$. Then we can write the likelihood as follows
+
+\begin{align}
+p(x_i | z_i= p) & = \Pi_{l = 1}^{12} p(x_{il} | z_i = p)\\
+& = \Pi_{l = 1}^{12} MN(x_{il}; 2, \pi_{pl})
+\end{align}
+
+* Prior: since all four populations are equaly likeliy, then $p(z_i = p) = 1/4$. 
+
+* Posterior:
+
+\begin{align}
+p(z_i = p | x_i) & \propto p(x_i | z_i = p) p(z_i= p)\\
+& \propto p(x_i | z_i = p)
+\end{align}
+
+Then since $\sum_{p = 1}^4 p(z_i = p | x_i) = 1$,  we have
+$$  p(z_i = p | x_i) = \frac{p(x_i | z_i = p)}{\sum_{p^{'}} p(x_i | z_i = p^{'})}  $$
+
+```{r}
+#this function computes a table of the alleles and their counts at a given locus (locus= 1...12)
+#in a given data frame (data)
+compute_counts = function(data,locus){
+  return(table(data[,1+2*locus]) + table(data[,2+2*locus]))
+}
+## this function converts counts to frequency (proportions)
+normalize= function(x){x/sum(x)}
+```
+
+
+### compute frequency from training data
+* Note I didn't consider NA in the computig frequency (will be discussed in the end) 
+* I added small $\epsilon$ to those $0$ probabilities. $0$ may not be good estimate (indeed they appear in test data) and can cause numerical issues. 
+```{r}
+pop = unique(train$Population)
+nloc = 12
+
+freqs <- list()
+for(i in 1:length(pop)){
+  data_sub = train[train$Population == pop[i], ]
+  f <- list()
+  for(l in 1:nloc){
+    f_ = normalize(compute_counts(data_sub, l))
+    f_[f_ == 0] = 1e-8
+    f[[l]] = normalize(f_)
+  }
+  freqs[[i]] = f
+}
+```
+
+### compute posterior
+* The code is not optimized (uses many for loops) but is okay for this small problem...
+```{r}
+prob_pos <- matrix(NA, nrow = nrow(test), ncol = length(pop))
+
+for(i in 1:nrow(test)){
+  lls <- replicate(length(pop), NA) ## store p(x_i | z_i = p) for each p
+  for(p in 1:length(pop)){
+    ll = 0
+    for(l in 1:nloc){
+       counts = compute_counts(test[i,], l)
+       if(sum(counts) == 2){ ## no missing
+         ll = ll + dmultinom(x = counts, size = 2, prob = freqs[[p]][[l]], log = TRUE)
+         if(is.nan(ll)){browser()}
+       }
+    }
+    lls[p] = ll
+  }
+  prob = exp(lls)/sum(exp(lls))
+  prob_pos[i,] <- prob 
+}
+```
+
+### prediction
+The error rate is reported below
+```{r}
+z_pred <- apply(prob_pos, 1, which.max)
+err_rate = sum(pop[z_pred] != test$Population)/nrow(test)
+err_rate
+```
+
+### Discussions:
+There are two challenges: `NA` in the data and problems caused by exact $0$ in allele frequency
+
+Problems from `NA`
+
+* There are `NA`'s in data, which can affect both estimated allele frequency from training data, and the likelihood for test data. 
+* I didn't specifically model `NA`'s, except that checking if each $x_{il}$ sums to exactly 2 (otherwise it cannot be fitted by my model).
+* However, with more background knowledge on the measurement, it might be the case that the data is not missing at random, where my model leads to biased estimate. 
+  
+Problem from allele frequency being exact 0's:
+
+* Estimate of allele frequency gives some exact 0's, which is probably not true and causes numerical issues in test data (they appear in test data!)
+* I added some constant $10^{-8}$ to those $0$'s and re-normalize the probability vectors. 
