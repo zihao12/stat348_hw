@@ -1,0 +1,108 @@
+---
+title: "test"
+author: "zihao12"
+date: "2021-04-07"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+
+
+```{r}
+m1 <- function(alpha, beta){
+  return(alpha/4)
+}
+
+m2 <- function(alpha, beta){
+  return((alpha * beta + 5 * alpha^2) / 80)
+}
+
+ave_risk <- function(a, b, alpha, beta, n){
+  out = (16-n) * m2(alpha, beta) + (n - 8 * a) * m1(alpha, beta) + a^2
+  return(out/(4+n)^2)
+}
+
+```
+
+
+
+```{r}
+estimators <- list()
+estimators[[1]] = c(1,3)
+estimators[[2]] = c(2,3)
+estimators[[3]] = c(3,1)
+
+prior = estimators
+
+```
+
+
+## $(a, b) = (1, 3)$
+```{r}
+i = 1
+n <- 1:1000
+r_curve <- matrix(NA, nrow = 3, ncol = length(n))
+for(k in 1:3){
+  a = estimators[[i]][1]
+  b = estimators[[i]][1]
+  alpha = prior[[k]][1]
+  beta = prior[[k]][2]
+  r_curve[k, ] = ave_risk(a, b,alpha, beta, n)
+}
+plot(n,log(r_curve[1,]),type = "l", col = 1)
+lines(n,log(r_curve[2,]), col = 2)
+lines(n,log(r_curve[3,]), col = 3)
+legend("topright",legend = c("(1,3)", "(2,2)", "(3,1)"), col = 1:3, lty = 1:1)
+any(r_curve[3,] < r_curve[2,])
+any(r_curve[3,] > r_curve[1,])
+```
+
+
+
+## $(a, b) = (3, 1)$
+```{r}
+n <- 1:100
+i = 3
+r_curve <- matrix(NA, nrow = 3, ncol = length(n))
+for(k in 1:3){
+  a = estimators[[i]][1]
+  b = estimators[[i]][1]
+  alpha = prior[[k]][1]
+  beta = prior[[k]][2]
+  r_curve[k, ] = ave_risk(a, b,alpha, beta, n)
+}
+
+plot(n,log(r_curve[1,]),type = "l", col = 1)
+lines(n,log(r_curve[2,]), col = 2)
+lines(n,log(r_curve[3,]), col = 3)
+legend("topright",legend = c("(1,3)", "(2,2)", "(3,1)"), col = 1:3, lty = 1:1)
+```
+Maximized at 
+
+## $(a, b) = (2, 2)$
+
+```{r}
+n <- 1:100
+i = 2
+r_curve <- matrix(NA, nrow = 3, ncol = length(n))
+for(k in 1:3){
+  a = estimators[[i]][1]
+  b = estimators[[i]][1]
+  alpha = prior[[k]][1]
+  beta = prior[[k]][2]
+  r_curve[k, ] = ave_risk(a, b,alpha, beta, n)
+}
+
+plot(n,log(r_curve[1,]),type = "l", col = 1)
+lines(n,log(r_curve[2,]), col = 2)
+lines(n,log(r_curve[3,]), col = 3)
+legend("topright",legend = c("(1,3)", "(2,2)", "(3,1)"), col = 1:3, lty = 1:1)
+```
+
+It's tricky here. 
+
+
+
