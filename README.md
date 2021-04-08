@@ -1,5 +1,3 @@
 # stat348_hw
 
-A [workflowr][] project.
-
-[workflowr]: https://github.com/jdblischak/workflowr
+https://zihao12.github.io/stat348_hw/
