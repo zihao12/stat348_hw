@@ -22,9 +22,18 @@ m2 <- function(alpha, beta){
 
 ave_risk <- function(a, b, alpha, beta, n){
   out = (16-n) * m2(alpha, beta) + (n - 8 * a) * m1(alpha, beta) + a^2
-  return(out/(4+n)^2)
+  # return(out/(4+n)^2)
+  return(out)
 }
 
+
+compute_intercept <- function(a, b, alpha, beta){
+  a^2 + 8 * (2 * m2(alpha,beta) - a * m1(alpha,beta))
+}
+
+compute_slope <- function(a, b,alpha, beta){
+  m1(alpha,beta) - m2(alpha,beta)
+}
 ```
 
 
@@ -32,77 +41,71 @@ ave_risk <- function(a, b, alpha, beta, n){
 ```{r}
 estimators <- list()
 estimators[[1]] = c(1,3)
-estimators[[2]] = c(2,3)
+estimators[[2]] = c(2,2)
 estimators[[3]] = c(3,1)
 
 prior = estimators
-
 ```
 
 
-## $(a, b) = (1, 3)$
+## (a, b) = (1,3)
 ```{r}
-i = 1
-n <- 1:1000
-r_curve <- matrix(NA, nrow = 3, ncol = length(n))
+i = 1 
+a = estimators[[i]][1]
+b = estimators[[i]][2]
+
+intercept <- c()
+slope <- c()
+
 for(k in 1:3){
-  a = estimators[[i]][1]
-  b = estimators[[i]][1]
   alpha = prior[[k]][1]
   beta = prior[[k]][2]
-  r_curve[k, ] = ave_risk(a, b,alpha, beta, n)
+  intercept <- c(intercept, compute_intercept(a,b,alpha, beta))
+  slope <- c(slope, compute_slope(a,b,alpha, beta))
 }
-plot(n,log(r_curve[1,]),type = "l", col = 1)
-lines(n,log(r_curve[2,]), col = 2)
-lines(n,log(r_curve[3,]), col = 3)
-legend("topright",legend = c("(1,3)", "(2,2)", "(3,1)"), col = 1:3, lty = 1:1)
-any(r_curve[3,] < r_curve[2,])
-any(r_curve[3,] > r_curve[1,])
+
+data.frame(slope = slope, intercept = intercept)
 ```
 
 
-
-## $(a, b) = (3, 1)$
+## (a, b) = (2,2)
 ```{r}
-n <- 1:100
-i = 3
-r_curve <- matrix(NA, nrow = 3, ncol = length(n))
-for(k in 1:3){
-  a = estimators[[i]][1]
-  b = estimators[[i]][1]
-  alpha = prior[[k]][1]
-  beta = prior[[k]][2]
-  r_curve[k, ] = ave_risk(a, b,alpha, beta, n)
-}
-
-plot(n,log(r_curve[1,]),type = "l", col = 1)
-lines(n,log(r_curve[2,]), col = 2)
-lines(n,log(r_curve[3,]), col = 3)
-legend("topright",legend = c("(1,3)", "(2,2)", "(3,1)"), col = 1:3, lty = 1:1)
-```
-Maximized at 
-
-## $(a, b) = (2, 2)$
-
-```{r}
-n <- 1:100
 i = 2
-r_curve <- matrix(NA, nrow = 3, ncol = length(n))
+a = estimators[[i]][1]
+b = estimators[[i]][2]
+
+intercept <- c()
+slope <- c()
+
 for(k in 1:3){
-  a = estimators[[i]][1]
-  b = estimators[[i]][1]
   alpha = prior[[k]][1]
   beta = prior[[k]][2]
-  r_curve[k, ] = ave_risk(a, b,alpha, beta, n)
+  intercept <- c(intercept, compute_intercept(a,b,alpha, beta))
+  slope <- c(slope, compute_slope(a,b,alpha, beta))
 }
 
-plot(n,log(r_curve[1,]),type = "l", col = 1)
-lines(n,log(r_curve[2,]), col = 2)
-lines(n,log(r_curve[3,]), col = 3)
-legend("topright",legend = c("(1,3)", "(2,2)", "(3,1)"), col = 1:3, lty = 1:1)
+data.frame(slope = slope, intercept = intercept)
 ```
 
-It's tricky here. 
+
+## (a, b) = (3,1)
+```{r}
+i = 3
+a = estimators[[i]][1]
+b = estimators[[i]][2]
+
+intercept <- c()
+slope <- c()
+
+for(k in 1:3){
+  alpha = prior[[k]][1]
+  beta = prior[[k]][2]
+  intercept <- c(intercept, compute_intercept(a,b,alpha, beta))
+  slope <- c(slope, compute_slope(a,b,alpha, beta))
+}
+
+data.frame(slope = slope, intercept = intercept)
+```
 
 
 
