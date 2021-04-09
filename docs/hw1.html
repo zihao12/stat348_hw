@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong090b4f0"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 090b4f0 </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong77841c6"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 77841c6 </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong090b4f0" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrong77841c6" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 090b4f0. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version 77841c6. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -519,6 +519,7 @@ Untracked files:
     Untracked:  data/four_salmon_pops.csv
     Untracked:  data/zip.test
     Untracked:  data/zip.train
+    Untracked:  hw/
     Untracked:  script/
 
 </code></pre>
@@ -558,6 +559,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+77841c6
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-08
+</td>
+<td>
+hw1 finally
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+e92cb4e
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -733,7 +768,7 @@ simulate_p1 &lt;- function(fS, fF, nF,nS){
   forest &lt;- simulate_tusk(f = fF, n = nF)
   savan &lt;- simulate_tusk(f = fS,n = nS)
   X = rbind(forest, savan)
-  y = c(replicate(nF, 1), replicate(nS,0)) ## forest is 1, savana is 0
+  y = c(replicate(nF, 0), replicate(nS,1)) ## forest is 0, savana is 1
   return(list(X = X, y = y))
 }
 
@@ -744,7 +779,7 @@ classifier_lr &lt;- function(data, fS, fF){
   llS &lt;-  rowSums(X %*% diag(log(fS)) + (1 - X) %*% diag(log(1-fS)))
   llF &lt;-  rowSums(X %*% diag(log(fF)) + (1 - X) %*% diag(log(1-fF)))
   ## compute LR for each sample
-  LR = exp(llF - llS)
+  LR = exp(llS - llF)
   return(LR)  
 }
 
@@ -811,11 +846,11 @@ zihao12
 </div>
 <pre class="r"><code>c_min = 10^(log10_cs[which.min(err_rate)])
 print(sprintf(&quot;minimizer of error rate is c = %f, with error rate =  %f&quot;, c_min, min(err_rate)))</code></pre>
-<pre><code>[1] &quot;minimizer of error rate is c = 0.829851, with error rate =  0.269500&quot;</code></pre>
+<pre><code>[1] &quot;minimizer of error rate is c = 0.990832, with error rate =  0.269500&quot;</code></pre>
 </div>
 <div id="section-1" class="section level3">
 <h3>(2)</h3>
-<pre class="r"><code>log10_cs = seq(-6, 0, by = 0.001)
+<pre class="r"><code>log10_cs = seq(-1, 2, by = 0.001)
 
 err_rate = experiment_p1(fS = fS, fF = fF, nF = 1900, nS = 100,
               cs = 10^log10_cs)
@@ -862,9 +897,9 @@ zihao12
 </div>
 <pre class="r"><code>c_min = 10^(log10_cs[which.min(err_rate)])
 print(sprintf(&quot;minimizer of error rate is c = %f, with error rate =  %f&quot;, c_min, min(err_rate)))</code></pre>
-<pre><code>[1] &quot;minimizer of error rate is c = 0.000001, with error rate =  0.050000&quot;</code></pre>
+<pre><code>[1] &quot;minimizer of error rate is c = 7.709035, with error rate =  0.050000&quot;</code></pre>
 <ul>
-<li><p>The minimizer is <span class="math inline">\(c = 0\)</span> (i.e. classifiying every sample as Forest). Why? Because the Forest has way more samples, and that the LRs for Savana’s LRs are not separable from that of Forest.</p></li>
+<li><p>The minimizer is <span class="math inline">\(c = 7.709035\)</span>, the largest LR (i.e. classifiying every sample as Forest). Why? Because the Forest has way more samples, and that the LRs for Savana’s LRs are not separable from that of Forest.</p></li>
 <li><p>Specifically, if we want to correctly classify any Savana sample (i.e. set a larger <span class="math inline">\(c\)</span>), we would sacrifice more mistakes among Forest samples, as can be seen clearly from the histogram below.</p></li>
 <li><p>Therefore to make the least mistakes, the best decision rule is to classify everything as Forest.</p></li>
 </ul>
@@ -995,7 +1030,7 @@ data_test23 = subset_23(data_test)</code></pre>
 <pre class="r"><code>compute_loss &lt;- function(y,yhat, cost){
   diff &lt;- y - yhat
   loss = cost[1] * sum(diff == 1) + cost[2] * sum(diff == -1)
-  return(loss/length(y))
+  return(loss)
 }
 
 ## use fitted glm model and cost to predict yhat, and compute loss
@@ -1055,13 +1090,13 @@ classifier_knn &lt;- function(data_train, data_test, k, cost = c(1,1)){
 
 ks &lt;- c(NA, 1,3,5,7,15)
 models &lt;- c(&quot;logistic&quot;, replicate(5, &quot;KNN&quot;))
-err_train &lt;- c(outcome_logistic$loss_train)
-err_test &lt;- c(outcome_logistic$loss_test)
+err_train &lt;- c(outcome_logistic$loss_train/nrow(data_train23))
+err_test &lt;- c(outcome_logistic$loss_test/nrow(data_test23))
 
 for(i in 2:length(ks)){
   out &lt;- classifier_knn(data_train23, data_test23, ks[i])
-  err_train &lt;- c(err_train, out$loss_train)
-  err_test &lt;- c(err_test, out$loss_test)
+  err_train &lt;- c(err_train, out$loss_train/nrow(data_train23))
+  err_test &lt;- c(err_test, out$loss_test/nrow(data_test23))
 }</code></pre>
 </div>
 <div id="summarize-results" class="section level4">
@@ -1147,6 +1182,43 @@ for(k in ks){
 }
 plot(ks, err_cv)</code></pre>
 <p><img src="figure/hw1.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
+Past versions of unnamed-chunk-12-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+e92cb4e
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <ul>
 <li><p>From the CV result above, <span class="math inline">\(k = 3\)</span> is the best choice (tried 10-fold CV and also have <span class="math inline">\(K = 3\)</span> is the best).</p></li>
 <li><p>It’s not in agreement with the test data, but not off by much.</p></li>
@@ -1163,13 +1235,13 @@ Compare the expected loss for the two actions under the new loss (below <span cl
 <p>For both logistic regression and KNN I already incorporated cost in the functions above.</p>
 <div id="logistic-regression" class="section level4">
 <h4>logistic regression</h4>
-<pre class="r"><code>loss_new = outcome_logistic_cost = classifier_logistic(data_train23, data_test23, cost = c(1, 5))$loss_test</code></pre>
+<pre class="r"><code>loss_new = classifier_logistic(data_train23, data_test23, cost = c(5, 1))$loss_test</code></pre>
 <pre><code>Warning: glm.fit: algorithm did not converge</code></pre>
 <pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
-<pre class="r"><code>loss_old = compute_loss(y = data_test23[,1], yhat = outcome_logistic$yhat_test, cost = c(1,5))
+<pre class="r"><code>loss_old = compute_loss(y = data_test23[,1], yhat = outcome_logistic$yhat_test, cost = c(5,1))
 
-print(sprintf(&quot;average test err new vs old: %f vs %f&quot;, loss_new, loss_old))</code></pre>
-<pre><code>[1] &quot;average test err new vs old: 0.153846 vs 0.175824&quot;</code></pre>
+print(sprintf(&quot;test loss new vs old: %f vs %f&quot;, loss_new, loss_old))</code></pre>
+<pre><code>[1] &quot;test loss new vs old: 56.000000 vs 56.000000&quot;</code></pre>
 </div>
 <div id="knn" class="section level4">
 <h4>KNN</h4>
@@ -1183,23 +1255,23 @@ print(sprintf(&quot;average test err new vs old: %f vs %f&quot;, loss_new, loss_
   loss_old = compute_loss(y = data_test23[,1], yhat = pred_old$yhat, cost = c(5,1))
   loss_new = pred_new$loss
   
-  print(sprintf(&quot;average test err new vs old: %f vs %f&quot;, loss_new, loss_old))
+  print(sprintf(&quot;test loss new vs old: %f vs %f&quot;, loss_new, loss_old))
 }
 
 for(k in ks){
   compare_knn_new_old(k)
 }</code></pre>
 <pre><code>[1] &quot;1-KNN:&quot;
-[1] &quot;average test err new vs old: 0.090659 vs 0.090659&quot;
+[1] &quot;test loss new vs old: 33.000000 vs 33.000000&quot;
 [1] &quot;3-KNN:&quot;
-[1] &quot;average test err new vs old: 0.071429 vs 0.107143&quot;
+[1] &quot;test loss new vs old: 26.000000 vs 39.000000&quot;
 [1] &quot;5-KNN:&quot;
-[1] &quot;average test err new vs old: 0.060440 vs 0.107143&quot;
+[1] &quot;test loss new vs old: 22.000000 vs 39.000000&quot;
 [1] &quot;7-KNN:&quot;
-[1] &quot;average test err new vs old: 0.082418 vs 0.131868&quot;
+[1] &quot;test loss new vs old: 30.000000 vs 48.000000&quot;
 [1] &quot;15-KNN:&quot;
-[1] &quot;average test err new vs old: 0.071429 vs 0.159341&quot;</code></pre>
-<p>Interesting that 1-KNN the cost does not matter: it turns out that the predicted <span class="math inline">\(\hat{y}\)</span> are the same for the two models. The test data is too easily separable (the fitted probability is very confident) for 1-KNN that even such an asymmetric cost does not matter much.</p>
+[1] &quot;test loss new vs old: 26.000000 vs 58.000000&quot;</code></pre>
+<p>Interesting that 1-KNN the cost does not matter: it turns out that the predicted <span class="math inline">\(\hat{y}\)</span> are the same for the two models. The test data is too easily separable (the prediction probability is very confident) for 1-KNN that even such an asymmetric cost does not matter much.</p>
 </div>
 </div>
 </div>
