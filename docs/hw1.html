@@ -405,7 +405,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-04-06
+<strong>Last updated:</strong> 2021-04-08
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongbced1c8"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> bced1c8 </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong090b4f0"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 090b4f0 </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongbced1c8" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrong090b4f0" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version bced1c8. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version 090b4f0. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -558,6 +558,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+090b4f0
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-08
+</td>
+<td>
+hw1 update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+6f38676
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-06
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1087,7 +1121,10 @@ zihao12
 </div>
 <div id="use-cv-to-choose-k-for-knn" class="section level3">
 <h3>(3) use CV to choose k for KNN</h3>
-<p>I will use 10-fold cross-validation</p>
+<ul>
+<li>I will use 10-fold cross-validation</li>
+<li>In practice I think it is better to use <span class="math inline">\(k\)</span> from <span class="math inline">\(1\)</span> to large number say <span class="math inline">\(50\)</span> consecutively (I tried and find <span class="math inline">\(k = 5\)</span> is the best). But below I use <span class="math inline">\(k=1,3,5,7,15\)</span> to better compare with the results from the previous question.</li>
+</ul>
 <pre class="r"><code>knn_cv &lt;- function(data_train, k, d = 10, cost = c(1,1)){
   N = nrow(data_train)
   grp_size = floor(N/d)
@@ -1108,8 +1145,8 @@ ks &lt;- c(1,3,5,7,15)
 for(k in ks){
   err_cv &lt;- c(err_cv, knn_cv(data_train23, k))
 }
-err_cv</code></pre>
-<pre><code>[1] 0.03671706 0.03455724 0.03239741 0.04319654 0.04895608</code></pre>
+plot(ks, err_cv)</code></pre>
+<p><img src="figure/hw1.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 <ul>
 <li><p>From the CV result above, <span class="math inline">\(k = 3\)</span> is the best choice (tried 10-fold CV and also have <span class="math inline">\(K = 3\)</span> is the best).</p></li>
 <li><p>It’s not in agreement with the test data, but not off by much.</p></li>
@@ -1131,8 +1168,8 @@ Compare the expected loss for the two actions under the new loss (below <span cl
 <pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
 <pre class="r"><code>loss_old = compute_loss(y = data_test23[,1], yhat = outcome_logistic$yhat_test, cost = c(1,5))
 
-print(sprintf(&quot;average test err old vs new: %f vs %f&quot;, loss_new, loss_old))</code></pre>
-<pre><code>[1] &quot;average test err old vs new: 0.153846 vs 0.175824&quot;</code></pre>
+print(sprintf(&quot;average test err new vs old: %f vs %f&quot;, loss_new, loss_old))</code></pre>
+<pre><code>[1] &quot;average test err new vs old: 0.153846 vs 0.175824&quot;</code></pre>
 </div>
 <div id="knn" class="section level4">
 <h4>KNN</h4>
@@ -1146,22 +1183,22 @@ print(sprintf(&quot;average test err old vs new: %f vs %f&quot;, loss_new, loss_
   loss_old = compute_loss(y = data_test23[,1], yhat = pred_old$yhat, cost = c(5,1))
   loss_new = pred_new$loss
   
-  print(sprintf(&quot;average test err old vs new: %f vs %f&quot;, loss_new, loss_old))
+  print(sprintf(&quot;average test err new vs old: %f vs %f&quot;, loss_new, loss_old))
 }
 
 for(k in ks){
   compare_knn_new_old(k)
 }</code></pre>
 <pre><code>[1] &quot;1-KNN:&quot;
-[1] &quot;average test err old vs new: 0.090659 vs 0.090659&quot;
+[1] &quot;average test err new vs old: 0.090659 vs 0.090659&quot;
 [1] &quot;3-KNN:&quot;
-[1] &quot;average test err old vs new: 0.071429 vs 0.107143&quot;
+[1] &quot;average test err new vs old: 0.071429 vs 0.107143&quot;
 [1] &quot;5-KNN:&quot;
-[1] &quot;average test err old vs new: 0.060440 vs 0.107143&quot;
+[1] &quot;average test err new vs old: 0.060440 vs 0.107143&quot;
 [1] &quot;7-KNN:&quot;
-[1] &quot;average test err old vs new: 0.082418 vs 0.131868&quot;
+[1] &quot;average test err new vs old: 0.082418 vs 0.131868&quot;
 [1] &quot;15-KNN:&quot;
-[1] &quot;average test err old vs new: 0.071429 vs 0.159341&quot;</code></pre>
+[1] &quot;average test err new vs old: 0.071429 vs 0.159341&quot;</code></pre>
 <p>Interesting that 1-KNN the cost does not matter: it turns out that the predicted <span class="math inline">\(\hat{y}\)</span> are the same for the two models. The test data is too easily separable (the fitted probability is very confident) for 1-KNN that even such an asymmetric cost does not matter much.</p>
 </div>
 </div>
