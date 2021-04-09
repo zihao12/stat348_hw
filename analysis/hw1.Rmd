@@ -26,7 +26,7 @@ simulate_p1 <- function(fS, fF, nF,nS){
   forest <- simulate_tusk(f = fF, n = nF)
   savan <- simulate_tusk(f = fS,n = nS)
   X = rbind(forest, savan)
-  y = c(replicate(nF, 1), replicate(nS,0)) ## forest is 1, savana is 0
+  y = c(replicate(nF, 0), replicate(nS,1)) ## forest is 0, savana is 1
   return(list(X = X, y = y))
 }
 
@@ -37,7 +37,7 @@ classifier_lr <- function(data, fS, fF){
   llS <-  rowSums(X %*% diag(log(fS)) + (1 - X) %*% diag(log(1-fS)))
   llF <-  rowSums(X %*% diag(log(fF)) + (1 - X) %*% diag(log(1-fF)))
   ## compute LR for each sample
-  LR = exp(llF - llS)
+  LR = exp(llS - llF)
   return(LR)  
 }
 
@@ -73,7 +73,7 @@ print(sprintf("minimizer of error rate is c = %f, with error rate =  %f", c_min,
 
 ### (2)
 ```{r}
-log10_cs = seq(-6, 0, by = 0.001)
+log10_cs = seq(-1, 2, by = 0.001)
 
 err_rate = experiment_p1(fS = fS, fF = fF, nF = 1900, nS = 100,
               cs = 10^log10_cs)
@@ -85,7 +85,7 @@ c_min = 10^(log10_cs[which.min(err_rate)])
 print(sprintf("minimizer of error rate is c = %f, with error rate =  %f", c_min, min(err_rate)))
 ```
 
-* The minimizer is $c = 0$ (i.e. classifiying every sample as Forest). Why? Because the Forest has way more samples, and that the LRs for Savana's LRs are not separable from that of Forest.  
+* The minimizer is $c = 7.709035$, the largest LR (i.e. classifiying every sample as Forest). Why? Because the Forest has way more samples, and that the LRs for Savana's LRs are not separable from that of Forest.  
 
 * Specifically, if we want to correctly classify any Savana sample (i.e. set a larger $c$), we would sacrifice more mistakes among Forest samples, as can be seen clearly from the histogram below. 
 
@@ -152,7 +152,7 @@ data_test23 = subset_23(data_test)
 compute_loss <- function(y,yhat, cost){
   diff <- y - yhat
   loss = cost[1] * sum(diff == 1) + cost[2] * sum(diff == -1)
-  return(loss/length(y))
+  return(loss)
 }
 
 ## use fitted glm model and cost to predict yhat, and compute loss
@@ -210,13 +210,13 @@ classifier_knn <- function(data_train, data_test, k, cost = c(1,1)){
 
 ks <- c(NA, 1,3,5,7,15)
 models <- c("logistic", replicate(5, "KNN"))
-err_train <- c(outcome_logistic$loss_train)
-err_test <- c(outcome_logistic$loss_test)
+err_train <- c(outcome_logistic$loss_train/nrow(data_train23))
+err_test <- c(outcome_logistic$loss_test/nrow(data_test23))
 
 for(i in 2:length(ks)){
   out <- classifier_knn(data_train23, data_test23, ks[i])
-  err_train <- c(err_train, out$loss_train)
-  err_test <- c(err_test, out$loss_test)
+  err_train <- c(err_train, out$loss_train/nrow(data_train23))
+  err_test <- c(err_test, out$loss_test/nrow(data_test23))
 }
 ```
 
@@ -275,11 +275,11 @@ For both logistic regression and KNN I already incorporated cost in the function
 
 #### logistic regression
 ```{r}
-loss_new = outcome_logistic_cost = classifier_logistic(data_train23, data_test23, cost = c(1, 5))$loss_test
+loss_new = classifier_logistic(data_train23, data_test23, cost = c(5, 1))$loss_test
 
-loss_old = compute_loss(y = data_test23[,1], yhat = outcome_logistic$yhat_test, cost = c(1,5))
+loss_old = compute_loss(y = data_test23[,1], yhat = outcome_logistic$yhat_test, cost = c(5,1))
 
-print(sprintf("average test err new vs old: %f vs %f", loss_new, loss_old))
+print(sprintf("test loss new vs old: %f vs %f", loss_new, loss_old))
 ```
 
 #### KNN
@@ -294,14 +294,14 @@ compare_knn_new_old <- function(k){
   loss_old = compute_loss(y = data_test23[,1], yhat = pred_old$yhat, cost = c(5,1))
   loss_new = pred_new$loss
   
-  print(sprintf("average test err new vs old: %f vs %f", loss_new, loss_old))
+  print(sprintf("test loss new vs old: %f vs %f", loss_new, loss_old))
 }
 
 for(k in ks){
   compare_knn_new_old(k)
 }
 ```
-Interesting that 1-KNN the cost does not matter: it turns out that the predicted $\hat{y}$ are the same for the two models. The test data is too easily separable (the fitted probability is very confident) for 1-KNN that even such an asymmetric cost does not matter much. 
+Interesting that 1-KNN the cost does not matter: it turns out that the predicted $\hat{y}$ are the same for the two models. The test data is too easily separable (the prediction probability is very confident) for 1-KNN that even such an asymmetric cost does not matter much. 
 
 ## Problem C  
 
