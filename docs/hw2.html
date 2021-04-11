@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong006a46b"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 006a46b </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongf435235"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> f435235 </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong006a46b" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongf435235" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 006a46b. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version f435235. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -560,6 +560,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+f435235
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+<td>
+update hw2
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+ecec9a6
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -853,34 +887,119 @@ zihao12
 <p>Plot the estimated (non-intercept) coefficients against the “theoretical” expectations you would expect if the predictors were orthogonal. Eg the “soft thresholding” property for the Lasso. (Note that the predictors here are not orthogonal, so the theory will certainly not hold precisely - does it hold approximately?)</p>
 <ul>
 <li><p>From the book we know, if <span class="math inline">\(X\)</span> has orthonormal columns, coefficients are ridge are <span class="math inline">\(\hat{\beta}_{j} /(1+\lambda)\)</span> and for lasso are <span class="math inline">\(\operatorname{sign}\left(\hat{\beta}_{j}\right)\left(\left|\hat{\beta}_{j}\right|-\lambda\right)_{+}\)</span>, where <span class="math inline">\(\hat{\beta}_{j}\)</span> is OLS estimate.</p></li>
-<li><p>Here, <span class="math inline">\(X\)</span>’s columns are assumed to be orthorgonal (may not have unit L2 norm). So I will get <span class="math inline">\(\hat{beta}\)</span> on standardized <span class="math inline">\(X\)</span>, get shrinkaged coefficients, then transform back to the un-standardized version.</p></li>
+<li><p>The trick here is to standardize <span class="math inline">\(X, y\)</span> before doing computation. Otherwise the <span class="math inline">\(\lambda\)</span> usedin <code>glmnet</code> means different things compared to our theoretical computation. I didn’t transform the <span class="math inline">\(\hat{\beta}\)</span> back as that simply multplies constants to both solutions which does not affect the comparison.</p></li>
+<li><p>As we can see below, the theoretical computation</p></li>
 </ul>
-<p>But the formula does not seem to work even for X with orthonormal columns. I think the problem is that the lambda means different things in my formula and in <code>glmnet</code></p>
-<pre class="r"><code>set.seed(123)
-X = svd(data_sim$X_train - colMeans(data_sim$X_train))$u ## for testing
-n = nrow(X); p = ncol(X)
-b = rnorm(p)
-y = X %*%b + rnorm(n, mean = 0, sd = 0.01)
-# y = data_sim$y_train
-# y = y - mean(y)
+<pre class="r"><code>X = data_sim$X_train
+X = (X - colMeans(X)) / apply(X, 1, sd)
+y = data_sim$y_train
+y= (y - mean(y)) / sd(y)
 
+## ridge 
 cv.ridge = cv.glmnet(X, y,alpha=0, nfolds = 10)
-lam = 100 * cv.ridge$lambda.min
-b.ols = lm(y ~ X)$coefficients[2:101]
+lam = cv.ridge$lambda.min
+
 b.ridge = glmnet(X, y, alpha = 0, lambda = lam)$beta
-
-
+b.ols = lm(y ~ X)$coefficients[2:101]
 b.ridge.t &lt;- b.ols/(1 + lam)
 
 plot(b.ridge, b.ridge.t)
 abline(a = 0, b= 1)</code></pre>
 <p><img src="figure/hw2.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+ecec9a6
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>## lasso
+cv.lasso = cv.glmnet(X, y,alpha=1, nfolds = 10)
+lam = cv.lasso$lambda.min
+b.ols = lm(y ~ X)$coefficients[2:101]
+b.lasso = glmnet(X, y, alpha = 1, lambda = lam)$beta
+
+
+b.lasso.t &lt;- abs(b.ols) - lam
+b.lasso.t[b.lasso.t &lt; 0] = 0
+b.lasso.t = b.lasso.t * sign(b.ols)
+
+plot(b.lasso, b.lasso.t)
+abline(a = 0, b= 1)</code></pre>
+<p><img src="figure/hw2.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="d" class="section level3">
 <h3>(d)</h3>
 <p>Check that indeed the sum of absolute values of the coefficients is decreasing along the lasso path. See plot blow</p>
 <pre class="r"><code>plot(log(Y.lasso$lambda), colSums(abs(Y.lasso$beta)), xlab = &quot;log(lambda)&quot;, ylab = &quot;sum of abs(beta)&quot;, main = &quot;lasso&quot;)</code></pre>
 <p><img src="figure/hw2.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+ecec9a6
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="e-todo" class="section level3">
 <h3>(e) TODO</h3>
@@ -905,11 +1024,11 @@ data_sim2 = simulate_data2()
 cv.ridge = cv.glmnet(X, y, alpha = 0)
 fit.ridge &lt;- glmnet(X, y, alpha = 0, lambda = cv.ridge$lambda)
 sum((fit.ridge$beta - data_sim2$b)^2)</code></pre>
-<pre><code>[1] 3741.569</code></pre>
+<pre><code>[1] 1377.635</code></pre>
 <pre class="r"><code>cv.lasso = cv.glmnet(X, y, alpha = 1)
 fit.lasso &lt;- glmnet(X, y, alpha = 1, lambda = cv.lasso$lambda)
 sum((fit.lasso$beta - data_sim2$b)^2)</code></pre>
-<pre><code>[1] 3020.75</code></pre>
+<pre><code>[1] 921.4503</code></pre>
 <p>The empirical loss shows that Lasso is btter in this sparse setting.</p>
 <br>
 <p>
