@@ -1,0 +1,95 @@
+---
+title: "hw2"
+author: "zihao12"
+date: "2021-04-10"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r message=FALSE, warning=FALSE}
+rm(list = ls())
+library(glmnet)
+```
+
+
+# Problem A
+
+## i) Investigate `glmnet`
+```{r}
+simulate_data1 <- function(p, n_train, n_test, n_sd = 25, seed = 123){
+  set.seed(seed)
+  n = n_train + n_test
+  X = matrix(rnorm(n*p),ncol=p)
+  b = rnorm(p)
+  e = rnorm(n,0,sd=n_sd)
+  Y = X %*% b + e
+  return(list(b = b, 
+              X_train = X[1:n_train,], X_test = X[(n_train + 1):n,], 
+              y_train = Y[1:n_train], y_test = Y[(n_train + 1):n]))
+}
+```
+
+### (a) compare CV results with test 
+Simulate some independent test data from the same model and check that the prediction error of different methods is comparable with the CV results.
+```{r}
+data_sim <- simulate_data1(p = 100, n_train = 500, n_test = 500)
+
+```
+
+
+Ridge regression: 
+```{r}
+cv.ridge = cv.glmnet(data_sim$X_train,data_sim$y_train,alpha=0, nfolds = 10)
+Y.ridge = glmnet(data_sim$X_train,data_sim$y_train,alpha=0)
+Yhat_test = predict(Y.ridge, newx = data_sim$X_test, s = cv.ridge$lambda)
+err_test = colMeans((Yhat_test - data_sim$y_test)^2)
+ylim = c(min(cv.ridge$cvm - cv.ridge$cvsd), max(err_test))
+plot(cv.ridge, ylim = ylim, main = "ridge regression prediction error: test vs CV")
+lines(log(cv.ridge$lambda), err_test, col = "blue")
+```
+
+Lasso regression:
+```{r}
+cv.lasso = cv.glmnet(data_sim$X_train,data_sim$y_train,alpha=1, nfolds = 10)
+Y.lasso = glmnet(data_sim$X_train,data_sim$y_train,alpha=1)
+Yhat_test = predict(Y.lasso, newx = data_sim$X_test, s = cv.lasso$lambda)
+err_test = colMeans((Yhat_test - data_sim$y_test)^2)
+ylim = c(min(cv.lasso$cvm - cv.lasso$cvsd), max(err_test))
+plot(cv.lasso, ylim = ylim, main = "lasso regression prediction error: test vs CV")
+lines(log(cv.lasso$lambda), err_test, col = "blue")
+```
+
+
+#### Comment:
+* The MSE from CV is biased (always underestimated); when setting `nfolds` smaller, the bias gets smaller. 
+* However, we can find the appropriate $\lambda$ using CV (that also miniimizes prediction error)
+
+### (b)
+Plot the (non-intercept) coefficients obtained from ridge regression and lasso against the true values used in the simulation and discuss the "shrinkage" that is occurring.
+```{r}
+b.ridge = predict(Y.ridge, type="coefficients", s = cv.ridge$lambda.min)
+
+b.lasso = predict(Y.lasso, type="coefficients", s = cv.lasso$lambda.min)
+
+
+plot(c(0, data_sim$b), b.ridge, xlab = "b.true")
+abline(a = 0, b = 1)
+
+plot(c(0, data_sim$b), b.lasso, xlab = "b.true")
+abline(a = 0, b = 1)
+```
+
+#### TODO: comment on shrinkage
+
+### (c)
+
+Plot the estimated (non-intercept) coefficients against the "theoretical" expectations you would expect if the predictors were orthogonal. Eg the "soft thresholding" property for the Lasso. (Note that the predictors here are not orthogonal, so the theory will certainly not hold precisely - does it hold approximately?)
+
+
+
+
+
+
+
