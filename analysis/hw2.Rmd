@@ -83,13 +83,107 @@ abline(a = 0, b = 1)
 
 #### TODO: comment on shrinkage
 
-### (c)
+### (c) TODO!
 
 Plot the estimated (non-intercept) coefficients against the "theoretical" expectations you would expect if the predictors were orthogonal. Eg the "soft thresholding" property for the Lasso. (Note that the predictors here are not orthogonal, so the theory will certainly not hold precisely - does it hold approximately?)
 
+* From the book we know, if $X$ has orthonormal columns, coefficients are ridge are $\hat{\beta}_{j} /(1+\lambda)$ and for lasso are $\operatorname{sign}\left(\hat{\beta}_{j}\right)\left(\left|\hat{\beta}_{j}\right|-\lambda\right)_{+}$, where $\hat{\beta}_{j}$ is OLS estimate. 
+
+* Here, $X$'s columns are assumed to be orthorgonal (may not have unit L2 norm). So I will get $\hat{beta}$ on standardized $X$, get shrinkaged coefficients, then transform back to the un-standardized version. 
+
+But the formula does not seem to work even for X with orthonormal columns. I think the problem is that the lambda means different things in my formula and in `glmnet`
+```{r}
+set.seed(123)
+X = svd(data_sim$X_train - colMeans(data_sim$X_train))$u ## for testing
+n = nrow(X); p = ncol(X)
+b = rnorm(p)
+y = X %*%b + rnorm(n, mean = 0, sd = 0.01)
+# y = data_sim$y_train
+# y = y - mean(y)
+
+cv.ridge = cv.glmnet(X, y,alpha=0, nfolds = 10)
+lam = 100 * cv.ridge$lambda.min
+b.ols = lm(y ~ X)$coefficients[2:101]
+b.ridge = glmnet(X, y, alpha = 0, lambda = lam)$beta
+
+
+b.ridge.t <- b.ols/(1 + lam)
+
+plot(b.ridge, b.ridge.t)
+abline(a = 0, b= 1)
+```
+
+```{r include=FALSE}
+beta_ridge <- function(X, y, lam){
+  p = ncol(X)
+  X_norm = sqrt(colSums(X^2))
+  X = X %*% diag(1/X_norm) ## now X has unit L2 norm
+  beta = lm(y ~ X)$coefficients[2:(p+1)]
+  out = beta / (1 + lam)
+  return(out/X_norm)
+}
+
+beta_lasso <- function(X,y,lam){
+  p = ncol(X)
+  X_norm = sqrt(colSums(X^2))
+  X = X %*% diag(1/X_norm) ## now X has unit L2 norm
+  beta = lm(y ~ X)$coefficients[2:(p+1)]
+  out = abs(beta) - lam
+  out[out < 0] = 0
+  out = out * sign(beta)
+  return(out/X_norm)
+}
+
+
+b.ridge.theory <- beta_ridge(X = data_sim$X_train, y = data_sim$y_train, lam = cv.ridge$lambda.min)
+#b.lasso.theory <- beta_lasso(beta = b.ols[2:101], lam = cv.lasso$lambda.min)
+b.lasso.theory <- beta_lasso(X = data_sim$X_train, y = data_sim$y_train, lam = cv.lasso$lambda.min)
 
 
 
+plot(b.ridge[2:101], b.ridge.theory)
+abline(a = 0, b = 1)
+
+plot(b.lasso[2:101], b.lasso.theory)
+abline(a = 0, b = 1)
+```
 
 
+
+### (d)
+Check that indeed the sum of absolute values of the coefficients is decreasing along the lasso path. See plot blow
+```{r}
+plot(log(Y.lasso$lambda), colSums(abs(Y.lasso$beta)), xlab = "log(lambda)", ylab = "sum of abs(beta)", main = "lasso")
+```
+
+### (e) TODO
+When you have finished, write a brief summary of what the code is doing, what you examined, and what you learned. 
+
+## ii) 
+Note that the simulation in i) involves a non-sparse setting: every predictor has an effect on Y. This might be expected to favor ridge regression over Lasso since ridge regression tends to produce non-sparse solutions, whereas Lasso tends to produce sparse solutions. So now modify the simulation in i) to simulate a sparse scenario, where only 10 of the 100 predictors actually affect 
+Y. [Note that you may or may not have to modify the residual variance to make the problem "not too easy" and "not too hard"]. Investigate whether ridge regression or lasso provide better predictions in this setting.
+
+```{r}
+simulate_data2 <- function(n = 500, p = 100, p_nz = 10, n_sd = 25, seed = 123){
+  set.seed(seed)
+  X = matrix(rnorm(n*p),ncol=p)
+  b = rnorm(p)
+  b[(p_nz+1):p] = 0
+  e = rnorm(n,0,sd=n_sd)
+  y = X %*% b + e
+  return(list(X = X, y = y, b = b))
+}
+
+data_sim2 = simulate_data2()
+
+cv.ridge = cv.glmnet(X, y, alpha = 0)
+fit.ridge <- glmnet(X, y, alpha = 0, lambda = cv.ridge$lambda)
+sum((fit.ridge$beta - data_sim2$b)^2)
+
+cv.lasso = cv.glmnet(X, y, alpha = 1)
+fit.lasso <- glmnet(X, y, alpha = 1, lambda = cv.lasso$lambda)
+sum((fit.lasso$beta - data_sim2$b)^2)
+```
+
+The empirical loss shows that Lasso is btter in  this sparse setting. 
 
