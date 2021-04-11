@@ -89,27 +89,39 @@ Plot the estimated (non-intercept) coefficients against the "theoretical" expect
 
 * From the book we know, if $X$ has orthonormal columns, coefficients are ridge are $\hat{\beta}_{j} /(1+\lambda)$ and for lasso are $\operatorname{sign}\left(\hat{\beta}_{j}\right)\left(\left|\hat{\beta}_{j}\right|-\lambda\right)_{+}$, where $\hat{\beta}_{j}$ is OLS estimate. 
 
-* Here, $X$'s columns are assumed to be orthorgonal (may not have unit L2 norm). So I will get $\hat{beta}$ on standardized $X$, get shrinkaged coefficients, then transform back to the un-standardized version. 
 
-But the formula does not seem to work even for X with orthonormal columns. I think the problem is that the lambda means different things in my formula and in `glmnet`
+* The trick here is to standardize $X, y$ before doing computation. Otherwise the $\lambda$ usedin `glmnet` means different things compared to our theoretical computation. I didn't transform the $\hat{\beta}$ back as that simply multplies constants to both solutions which does not affect the comparison. 
+
+* As we can see below, the theoretical computation 
 ```{r}
-set.seed(123)
-X = svd(data_sim$X_train - colMeans(data_sim$X_train))$u ## for testing
-n = nrow(X); p = ncol(X)
-b = rnorm(p)
-y = X %*%b + rnorm(n, mean = 0, sd = 0.01)
-# y = data_sim$y_train
-# y = y - mean(y)
+X = data_sim$X_train
+X = (X - colMeans(X)) / apply(X, 1, sd)
+y = data_sim$y_train
+y= (y - mean(y)) / sd(y)
 
+## ridge 
 cv.ridge = cv.glmnet(X, y,alpha=0, nfolds = 10)
-lam = 100 * cv.ridge$lambda.min
-b.ols = lm(y ~ X)$coefficients[2:101]
+lam = cv.ridge$lambda.min
+
 b.ridge = glmnet(X, y, alpha = 0, lambda = lam)$beta
-
-
+b.ols = lm(y ~ X)$coefficients[2:101]
 b.ridge.t <- b.ols/(1 + lam)
 
 plot(b.ridge, b.ridge.t)
+abline(a = 0, b= 1)
+
+## lasso
+cv.lasso = cv.glmnet(X, y,alpha=1, nfolds = 10)
+lam = cv.lasso$lambda.min
+b.ols = lm(y ~ X)$coefficients[2:101]
+b.lasso = glmnet(X, y, alpha = 1, lambda = lam)$beta
+
+
+b.lasso.t <- abs(b.ols) - lam
+b.lasso.t[b.lasso.t < 0] = 0
+b.lasso.t = b.lasso.t * sign(b.ols)
+
+plot(b.lasso, b.lasso.t)
 abline(a = 0, b= 1)
 ```
 
