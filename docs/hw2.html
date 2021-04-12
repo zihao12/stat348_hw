@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongf435235"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> f435235 </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong2e6b4fe"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 2e6b4fe </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongf435235" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrong2e6b4fe" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version f435235. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version 2e6b4fe. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -560,6 +560,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+2e6b4fe
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+<td>
+hw2 update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+147c9c0
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -670,7 +704,8 @@ wflow_publish(“analysis/hw2.Rmd”)
 </div>
 </div>
 <pre class="r"><code>rm(list = ls())
-library(glmnet)</code></pre>
+library(glmnet)
+library(stats)</code></pre>
 <div id="problem-a" class="section level1">
 <h1>Problem A</h1>
 <div id="i-investigate-glmnet" class="section level2">
@@ -930,6 +965,17 @@ Date
 <tbody>
 <tr>
 <td>
+147c9c0
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+</tr>
+<tr>
+<td>
 ecec9a6
 </td>
 <td>
@@ -957,6 +1003,43 @@ b.lasso.t = b.lasso.t * sign(b.ols)
 plot(b.lasso, b.lasso.t)
 abline(a = 0, b= 1)</code></pre>
 <p><img src="figure/hw2.Rmd/unnamed-chunk-7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-2">
+Past versions of unnamed-chunk-7-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+147c9c0
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="d" class="section level3">
 <h3>(d)</h3>
@@ -1030,6 +1113,115 @@ fit.lasso &lt;- glmnet(X, y, alpha = 1, lambda = cv.lasso$lambda)
 sum((fit.lasso$beta - data_sim2$b)^2)</code></pre>
 <pre><code>[1] 921.4503</code></pre>
 <p>The empirical loss shows that Lasso is btter in this sparse setting.</p>
+</div>
+</div>
+<div id="problem-c" class="section level1">
+<h1>Problem C</h1>
+<ol style="list-style-type: lower-alpha">
+<li>and (b) are hand-written</li>
+</ol>
+<div id="c" class="section level2">
+<h2>(c)</h2>
+<pre class="r"><code>nll &lt;- function(par, x, s){
+  mu = par[1]
+  sigma_sq = par[2]^2
+  n_ll = sum( log(sigma_sq + s^2) + (x - mu)^2/(s^2 + sigma_sq) )
+  return(n_ll)
+}
+
+ebnm_util &lt;- function(x, s, init){
+  fit = optim(par = init, fn = nll, x = x, s = s, method = &quot;BFGS&quot;, control = list(maxit = 10000))
+  mu = fit$par[1]
+  sigma_sq = fit$par[2]
+  pos.mean = (sigma_sq * x + s^2 * mu)/(sigma_sq + s^2)
+  return(list(mu = mu, sigma_sq = sigma_sq, pos.mean = pos.mean, nll = fit$value))
+}
+
+init_ebnm &lt;- function(x, s){
+  thetahat = x
+  mu = mean(thetahat)
+  sigma_sq = var(thetahat)
+  init = c(mu, sqrt(sigma_sq))
+  init = c(1,1)
+  return(init)
+}
+
+ebnm_ &lt;- function(x, s){
+  init = init_ebnm(x = x, s = s)
+  return(ebnm_util(x = x, s = s, init = init))
+}</code></pre>
+</div>
+<div id="d-1" class="section level2">
+<h2>(d)</h2>
+<pre class="r"><code>simulate_nm &lt;- function(mu, sigma_sq, s, n, seed = 123){
+  set.seed(seed)
+  theta = rnorm(n = n, mean = mu, sd = sqrt(sigma_sq))
+  x = rnorm(n = n, mean = theta, sd = s)
+  return(list(theta = theta, x = x, s = s))
+}
+
+n = 1000
+mu = 0.5
+sigma_sq = 2^2
+s = replicate(n, 5)
+
+data_nm &lt;- simulate_nm(mu = mu, sigma_sq = sigma_sq, s = s, n = n)
+theta = data_nm$theta
+x = data_nm$x
+s = data_nm$s
+
+fit = ebnm_(x, s)
+
+fit$mu</code></pre>
+<pre><code>[1] 0.743562</code></pre>
+<pre class="r"><code>fit$sigma_sq</code></pre>
+<pre><code>[1] 2.473991</code></pre>
+<pre class="r"><code>par(mfrow = c(2,2))
+
+plot(theta, fit$pos.mean, ylab = &quot;E(theta | X)&quot;, 
+     main = sprintf(&quot;ebnm: loss = %f&quot;, mean((theta - fit$pos.mean)^2)))
+abline(a = 0, b = 1)
+
+plot(theta, x, ylab = &quot;theta MLE&quot;,
+     main = sprintf(&quot;mle: loss = %f&quot;, mean((theta - x)^2)))
+abline(a = 0, b = 1)
+
+plot(x, fit$pos.mean, 
+     xlab = &quot;mle&quot;, ylab = &quot;E(theta | X)&quot;, main = &quot;mle vs ebnm&quot;)
+abline(a = 0, b = 1)
+
+
+fit2 = ebnm::ebnm_normal(x, s)
+loss = list(ebnm_my = mean((theta - fit$pos.mean)^2),
+            ebnm_normal = mean((theta - fit2$posterior[,1])^2),
+            mle = mean((theta - x)^2))
+loss</code></pre>
+<pre><code>$ebnm_my
+[1] 3.363384
+
+$ebnm_normal
+[1] 3.431895
+
+$mle
+[1] 25.50565</code></pre>
+<p><img src="figure/hw2.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="comment-1" class="section level3">
+<h3>Comment:</h3>
+<ul>
+<li><span class="math inline">\(\hat{\mu}, \hat{sigma}\)</span> are both close to the true (when sample size is small like <span class="math inline">\(n= 100\)</span> we can underestimate <span class="math inline">\(\hat{sigma}\)</span> a lot; but when <span class="math inline">\(n\)</span> gets large the estimates are very good )</li>
+<li>the posterior mean estimates <span class="math inline">\(\theta\)</span>’s much more accurately than MLE estimate, as we can see the (emprical) loss is <span class="math inline">\(3.4 vs 23.4\)</span></li>
+<li>Compared with <code>ebnm::ebnm_normal</code>, it seems my code gets better loss when <span class="math inline">\(|\mu|\)</span> gets larger whereas <code>ebnm::ebnm_normal</code> is better when <span class="math inline">\(\mu\)</span> is closer to <span class="math inline">\(0\)</span> (need more thorough comparisons; seems the default put mode on <span class="math inline">\(0\)</span>)</li>
+</ul>
+</div>
+</div>
+<div id="e" class="section level2">
+<h2>(e)</h2>
+<pre class="r"><code>x = c(28,8,-3,7,-1,1,18,12)
+s = c(15,10,16,11,9,11,10,18)
+theta = ebnm_(x = x, s = s)$pos.mean
+theta</code></pre>
+<pre><code>[1] 7.687915 7.686829 7.686269 7.686719 7.685453 7.686101 7.688075 7.686956</code></pre>
+<p>We shrinkage all estimates to the same value, similar to what we see in <a href="https://stephens999.github.io/stat34800/eight_schools.html" class="uri">https://stephens999.github.io/stat34800/eight_schools.html</a> . This makes sense as <span class="math inline">\(s\)</span> is very large so there may be no actual differences among schools.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1057,12 +1249,14 @@ other attached packages:
 
 loaded via a namespace (and not attached):
  [1] Rcpp_1.0.5       knitr_1.28       whisker_0.3-2    magrittr_1.5    
- [5] lattice_0.20-38  R6_2.4.1         rlang_0.4.5      stringr_1.4.0   
- [9] tools_3.5.1      grid_3.5.1       xfun_0.8         git2r_0.26.1    
-[13] htmltools_0.5.0  iterators_1.0.12 yaml_2.2.0       digest_0.6.25   
-[17] rprojroot_1.3-2  later_1.1.0.1    codetools_0.2-16 promises_1.1.1  
-[21] fs_1.3.1         glue_1.4.1       evaluate_0.14    rmarkdown_2.1   
-[25] stringi_1.4.3    compiler_3.5.1   backports_1.1.7  httpuv_1.5.4    </code></pre>
+ [5] SQUAREM_2020.5   lattice_0.20-38  R6_2.4.1         rlang_0.4.5     
+ [9] ashr_2.2-51      stringr_1.4.0    tools_3.5.1      grid_3.5.1      
+[13] ebnm_0.1-26      xfun_0.8         irlba_2.3.3      invgamma_1.1    
+[17] git2r_0.26.1     htmltools_0.5.0  iterators_1.0.12 yaml_2.2.0      
+[21] digest_0.6.25    rprojroot_1.3-2  mixsqp_0.3-46    later_1.1.0.1   
+[25] codetools_0.2-16 promises_1.1.1   fs_1.3.1         trust_0.1-8     
+[29] glue_1.4.1       evaluate_0.14    rmarkdown_2.1    stringi_1.4.3   
+[33] compiler_3.5.1   backports_1.1.7  truncnorm_1.0-8  httpuv_1.5.4    </code></pre>
 </div>
 </div>
 </div>
