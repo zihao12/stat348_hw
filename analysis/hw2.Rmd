@@ -11,6 +11,7 @@ editor_options:
 ```{r message=FALSE, warning=FALSE}
 rm(list = ls())
 library(glmnet)
+library(stats)
 ```
 
 
@@ -198,4 +199,103 @@ sum((fit.lasso$beta - data_sim2$b)^2)
 ```
 
 The empirical loss shows that Lasso is btter in  this sparse setting. 
+
+# Problem C
+
+(a) and (b) are hand-written
+
+## (c)
+```{r}
+nll <- function(par, x, s){
+  mu = par[1]
+  sigma_sq = par[2]^2
+  n_ll = sum( log(sigma_sq + s^2) + (x - mu)^2/(s^2 + sigma_sq) )
+  return(n_ll)
+}
+
+ebnm_util <- function(x, s, init){
+  fit = optim(par = init, fn = nll, x = x, s = s, method = "BFGS", control = list(maxit = 10000))
+  mu = fit$par[1]
+  sigma_sq = fit$par[2]
+  pos.mean = (sigma_sq * x + s^2 * mu)/(sigma_sq + s^2)
+  return(list(mu = mu, sigma_sq = sigma_sq, pos.mean = pos.mean, nll = fit$value))
+}
+
+init_ebnm <- function(x, s){
+  thetahat = x
+  mu = mean(thetahat)
+  sigma_sq = var(thetahat)
+  init = c(mu, sqrt(sigma_sq))
+  init = c(1,1)
+  return(init)
+}
+
+ebnm_ <- function(x, s){
+  init = init_ebnm(x = x, s = s)
+  return(ebnm_util(x = x, s = s, init = init))
+}
+```
+
+
+## (d)
+```{r}
+simulate_nm <- function(mu, sigma_sq, s, n, seed = 123){
+  set.seed(seed)
+  theta = rnorm(n = n, mean = mu, sd = sqrt(sigma_sq))
+  x = rnorm(n = n, mean = theta, sd = s)
+  return(list(theta = theta, x = x, s = s))
+}
+
+n = 1000
+mu = 0.5
+sigma_sq = 2^2
+s = replicate(n, 5)
+
+data_nm <- simulate_nm(mu = mu, sigma_sq = sigma_sq, s = s, n = n)
+theta = data_nm$theta
+x = data_nm$x
+s = data_nm$s
+
+fit = ebnm_(x, s)
+
+fit$mu
+
+fit$sigma_sq
+
+par(mfrow = c(2,2))
+
+plot(theta, fit$pos.mean, ylab = "E(theta | X)", 
+     main = sprintf("ebnm: loss = %f", mean((theta - fit$pos.mean)^2)))
+abline(a = 0, b = 1)
+
+plot(theta, x, ylab = "theta MLE",
+     main = sprintf("mle: loss = %f", mean((theta - x)^2)))
+abline(a = 0, b = 1)
+
+plot(x, fit$pos.mean, 
+     xlab = "mle", ylab = "E(theta | X)", main = "mle vs ebnm")
+abline(a = 0, b = 1)
+
+
+fit2 = ebnm::ebnm_normal(x, s)
+loss = list(ebnm_my = mean((theta - fit$pos.mean)^2),
+            ebnm_normal = mean((theta - fit2$posterior[,1])^2),
+            mle = mean((theta - x)^2))
+loss
+```
+
+### Comment:
+* $\hat{\mu}, \hat{sigma}$ are both close to the true (when sample size is small like $n= 100$ we can underestimate $\hat{sigma}$ a lot; but when $n$ gets large the estimates are very good )
+* the posterior mean estimates $\theta$'s much more accurately than MLE estimate, as we can see the (emprical) loss is $3.4 vs 23.4$ 
+* Compared with `ebnm::ebnm_normal`, it seems my code gets better loss when $|\mu|$ gets larger whereas `ebnm::ebnm_normal` is better when $\mu$ is closer to $0$ (need more thorough comparisons; seems the default put mode on $0$)
+
+## (e)
+```{r}
+x = c(28,8,-3,7,-1,1,18,12)
+s = c(15,10,16,11,9,11,10,18)
+theta = ebnm_(x = x, s = s)$pos.mean
+theta
+```
+
+We shrinkage all estimates to the same value, similar to what we see in https://stephens999.github.io/stat34800/eight_schools.html . This makes sense as $s$ is very large so there may be no actual differences among schools. 
 
