@@ -18,6 +18,7 @@ library(stats)
 # Problem A
 
 ## i) Investigate `glmnet`
+I ran the code in https://github.com/stephens999/stat34800/blob/master/analysis/glmnet_intro.Rmd . Below I did further investigations. 
 ```{r}
 simulate_data1 <- function(p, n_train, n_test, n_sd = 25, seed = 123){
   set.seed(seed)
@@ -64,7 +65,7 @@ lines(log(cv.lasso$lambda), err_test, col = "blue")
 
 
 #### Comment:
-* The MSE from CV is biased (always underestimated); when setting `nfolds` smaller, the bias gets smaller. 
+* The MSE from CV is biased (always underestimated); when setting `nfolds` smaller (didn't show above), the bias gets smaller. 
 * However, we can find the appropriate $\lambda$ using CV (that also miniimizes prediction error)
 
 ### (b)
@@ -82,10 +83,11 @@ plot(c(0, data_sim$b), b.lasso, xlab = "b.true")
 abline(a = 0, b = 1)
 ```
 
-#### TODO: comment on shrinkage
+#### comment on shrinkage
+* The ridge regression shrinks each $\hat{\beta}_j$ by multiplying a constant, which can be seen in the plot (rotating a little bit)
+* The lasso regression does soft thresholding: setting those $\hat{\beta}_j$ smaller than a cutoff value to 0; this can also be seen in the plot. 
 
-### (c) TODO!
-
+### (c) 
 Plot the estimated (non-intercept) coefficients against the "theoretical" expectations you would expect if the predictors were orthogonal. Eg the "soft thresholding" property for the Lasso. (Note that the predictors here are not orthogonal, so the theory will certainly not hold precisely - does it hold approximately?)
 
 * From the book we know, if $X$ has orthonormal columns, coefficients are ridge are $\hat{\beta}_{j} /(1+\lambda)$ and for lasso are $\operatorname{sign}\left(\hat{\beta}_{j}\right)\left(\left|\hat{\beta}_{j}\right|-\lambda\right)_{+}$, where $\hat{\beta}_{j}$ is OLS estimate. 
@@ -93,7 +95,7 @@ Plot the estimated (non-intercept) coefficients against the "theoretical" expect
 
 * The trick here is to standardize $X, y$ before doing computation. Otherwise the $\lambda$ usedin `glmnet` means different things compared to our theoretical computation. I didn't transform the $\hat{\beta}$ back as that simply multplies constants to both solutions which does not affect the comparison. 
 
-* As we can see below, the theoretical computation 
+* As we can see below, the theoretical computation and the computed value agree pretty well. 
 ```{r}
 X = data_sim$X_train
 X = (X - colMeans(X)) / apply(X, 1, sd)
@@ -126,51 +128,18 @@ plot(b.lasso, b.lasso.t)
 abline(a = 0, b= 1)
 ```
 
-```{r include=FALSE}
-beta_ridge <- function(X, y, lam){
-  p = ncol(X)
-  X_norm = sqrt(colSums(X^2))
-  X = X %*% diag(1/X_norm) ## now X has unit L2 norm
-  beta = lm(y ~ X)$coefficients[2:(p+1)]
-  out = beta / (1 + lam)
-  return(out/X_norm)
-}
-
-beta_lasso <- function(X,y,lam){
-  p = ncol(X)
-  X_norm = sqrt(colSums(X^2))
-  X = X %*% diag(1/X_norm) ## now X has unit L2 norm
-  beta = lm(y ~ X)$coefficients[2:(p+1)]
-  out = abs(beta) - lam
-  out[out < 0] = 0
-  out = out * sign(beta)
-  return(out/X_norm)
-}
-
-
-b.ridge.theory <- beta_ridge(X = data_sim$X_train, y = data_sim$y_train, lam = cv.ridge$lambda.min)
-#b.lasso.theory <- beta_lasso(beta = b.ols[2:101], lam = cv.lasso$lambda.min)
-b.lasso.theory <- beta_lasso(X = data_sim$X_train, y = data_sim$y_train, lam = cv.lasso$lambda.min)
-
-
-
-plot(b.ridge[2:101], b.ridge.theory)
-abline(a = 0, b = 1)
-
-plot(b.lasso[2:101], b.lasso.theory)
-abline(a = 0, b = 1)
-```
-
-
-
 ### (d)
 Check that indeed the sum of absolute values of the coefficients is decreasing along the lasso path. See plot blow
 ```{r}
 plot(log(Y.lasso$lambda), colSums(abs(Y.lasso$beta)), xlab = "log(lambda)", ylab = "sum of abs(beta)", main = "lasso")
 ```
 
-### (e) TODO
-When you have finished, write a brief summary of what the code is doing, what you examined, and what you learned. 
+### (e) 
+When you have finished, write a brief summary of what the code is doing, what you examined, and what you learned.
+
+* I learned about how to do CV with `glmnet` and do prediction; understand the shrinkage effects of ridge and lasso regression
+* Realized the bias-variance trade-off of k-fold CV; even though they might under-estimate error, they are still very good for choosing the right parameter 
+* Learnt the computation trick in `glmnet` and its effect on $\lambda$: do not intrepret $\lambda$ as in the objective function in the text book! This is useful for comparing methods
 
 ## ii) 
 Note that the simulation in i) involves a non-sparse setting: every predictor has an effect on Y. This might be expected to favor ridge regression over Lasso since ridge regression tends to produce non-sparse solutions, whereas Lasso tends to produce sparse solutions. So now modify the simulation in i) to simulate a sparse scenario, where only 10 of the 100 predictors actually affect 
@@ -198,7 +167,7 @@ fit.lasso <- glmnet(X, y, alpha = 1, lambda = cv.lasso$lambda)
 sum((fit.lasso$beta - data_sim2$b)^2)
 ```
 
-The empirical loss shows that Lasso is btter in  this sparse setting. 
+The empirical loss shows that Lasso is btter in  this sparse setting. It is not surprising as the true $\beta$'s are sparse so closer to the assumptions of Lasso regression model than ridge regression model. 
 
 # Problem C
 
@@ -285,7 +254,7 @@ loss
 ```
 
 ### Comment:
-* $\hat{\mu}, \hat{sigma}$ are both close to the true (when sample size is small like $n= 100$ we can underestimate $\hat{sigma}$ a lot; but when $n$ gets large the estimates are very good )
+* $\hat{\mu}, \hat{sigma}$ are both close to the true, when $n$ is large (when sample size is small like $n= 100$ we can underestimate $\hat{sigma}$ a lot, but $\hat{\mu}$ is more accurate)
 * the posterior mean estimates $\theta$'s much more accurately than MLE estimate, as we can see the (emprical) loss is $3.4 vs 23.4$ 
 * Compared with `ebnm::ebnm_normal`, it seems my code gets better loss when $|\mu|$ gets larger whereas `ebnm::ebnm_normal` is better when $\mu$ is closer to $0$ (need more thorough comparisons; seems the default put mode on $0$)
 
