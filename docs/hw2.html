@@ -405,7 +405,7 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2021-04-11
+<strong>Last updated:</strong> 2021-04-13
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -496,16 +496,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong2e6b4fe"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 2e6b4fe </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong16fd404"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> 16fd404 </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong2e6b4fe" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrong16fd404" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 2e6b4fe. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version 16fd404. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -560,6 +560,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+16fd404
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-13
+</td>
+<td>
+hw2 update finally
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+4448f41
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -710,6 +744,7 @@ library(stats)</code></pre>
 <h1>Problem A</h1>
 <div id="i-investigate-glmnet" class="section level2">
 <h2>i) Investigate <code>glmnet</code></h2>
+<p>I ran the code in <a href="https://github.com/stephens999/stat34800/blob/master/analysis/glmnet_intro.Rmd" class="uri">https://github.com/stephens999/stat34800/blob/master/analysis/glmnet_intro.Rmd</a> . Below I did further investigations.</p>
 <pre class="r"><code>simulate_data1 &lt;- function(p, n_train, n_test, n_sd = 25, seed = 123){
   set.seed(seed)
   n = n_train + n_test
@@ -820,7 +855,7 @@ zihao12
 <div id="comment" class="section level4">
 <h4>Comment:</h4>
 <ul>
-<li>The MSE from CV is biased (always underestimated); when setting <code>nfolds</code> smaller, the bias gets smaller.</li>
+<li>The MSE from CV is biased (always underestimated); when setting <code>nfolds</code> smaller (didn’t show above), the bias gets smaller.</li>
 <li>However, we can find the appropriate <span class="math inline">\(\lambda\)</span> using CV (that also miniimizes prediction error)</li>
 </ul>
 </div>
@@ -913,17 +948,21 @@ zihao12
 </table>
 </div>
 </div>
-<div id="todo-comment-on-shrinkage" class="section level4">
-<h4>TODO: comment on shrinkage</h4>
+<div id="comment-on-shrinkage" class="section level4">
+<h4>comment on shrinkage</h4>
+<ul>
+<li>The ridge regression shrinks each <span class="math inline">\(\hat{\beta}_j\)</span> by multiplying a constant, which can be seen in the plot (rotating a little bit)</li>
+<li>The lasso regression does soft thresholding: setting those <span class="math inline">\(\hat{\beta}_j\)</span> smaller than a cutoff value to 0; this can also be seen in the plot.</li>
+</ul>
 </div>
 </div>
-<div id="c-todo" class="section level3">
-<h3>(c) TODO!</h3>
+<div id="c" class="section level3">
+<h3>(c)</h3>
 <p>Plot the estimated (non-intercept) coefficients against the “theoretical” expectations you would expect if the predictors were orthogonal. Eg the “soft thresholding” property for the Lasso. (Note that the predictors here are not orthogonal, so the theory will certainly not hold precisely - does it hold approximately?)</p>
 <ul>
 <li><p>From the book we know, if <span class="math inline">\(X\)</span> has orthonormal columns, coefficients are ridge are <span class="math inline">\(\hat{\beta}_{j} /(1+\lambda)\)</span> and for lasso are <span class="math inline">\(\operatorname{sign}\left(\hat{\beta}_{j}\right)\left(\left|\hat{\beta}_{j}\right|-\lambda\right)_{+}\)</span>, where <span class="math inline">\(\hat{\beta}_{j}\)</span> is OLS estimate.</p></li>
 <li><p>The trick here is to standardize <span class="math inline">\(X, y\)</span> before doing computation. Otherwise the <span class="math inline">\(\lambda\)</span> usedin <code>glmnet</code> means different things compared to our theoretical computation. I didn’t transform the <span class="math inline">\(\hat{\beta}\)</span> back as that simply multplies constants to both solutions which does not affect the comparison.</p></li>
-<li><p>As we can see below, the theoretical computation</p></li>
+<li><p>As we can see below, the theoretical computation and the computed value agree pretty well.</p></li>
 </ul>
 <pre class="r"><code>X = data_sim$X_train
 X = (X - colMeans(X)) / apply(X, 1, sd)
@@ -1045,13 +1084,13 @@ zihao12
 <h3>(d)</h3>
 <p>Check that indeed the sum of absolute values of the coefficients is decreasing along the lasso path. See plot blow</p>
 <pre class="r"><code>plot(log(Y.lasso$lambda), colSums(abs(Y.lasso$beta)), xlab = &quot;log(lambda)&quot;, ylab = &quot;sum of abs(beta)&quot;, main = &quot;lasso&quot;)</code></pre>
-<p><img src="figure/hw2.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/hw2.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
-Past versions of unnamed-chunk-9-1.png
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
+Past versions of unnamed-chunk-8-1.png
 </button>
 </p>
-<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div id="fig-unnamed-chunk-8-1" class="collapse">
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
 <thead>
@@ -1070,6 +1109,17 @@ Date
 <tbody>
 <tr>
 <td>
+147c9c0
+</td>
+<td>
+zihao12
+</td>
+<td>
+2021-04-11
+</td>
+</tr>
+<tr>
+<td>
 ecec9a6
 </td>
 <td>
@@ -1084,9 +1134,14 @@ zihao12
 </div>
 </div>
 </div>
-<div id="e-todo" class="section level3">
-<h3>(e) TODO</h3>
+<div id="e" class="section level3">
+<h3>(e)</h3>
 <p>When you have finished, write a brief summary of what the code is doing, what you examined, and what you learned.</p>
+<ul>
+<li>I learned about how to do CV with <code>glmnet</code> and do prediction; understand the shrinkage effects of ridge and lasso regression</li>
+<li>Realized the bias-variance trade-off of k-fold CV; even though they might under-estimate error, they are still very good for choosing the right parameter</li>
+<li>Learnt the computation trick in <code>glmnet</code> and its effect on <span class="math inline">\(\lambda\)</span>: do not intrepret <span class="math inline">\(\lambda\)</span> as in the objective function in the text book! This is useful for comparing methods</li>
+</ul>
 </div>
 </div>
 <div id="ii" class="section level2">
@@ -1112,7 +1167,7 @@ sum((fit.ridge$beta - data_sim2$b)^2)</code></pre>
 fit.lasso &lt;- glmnet(X, y, alpha = 1, lambda = cv.lasso$lambda)
 sum((fit.lasso$beta - data_sim2$b)^2)</code></pre>
 <pre><code>[1] 921.4503</code></pre>
-<p>The empirical loss shows that Lasso is btter in this sparse setting.</p>
+<p>The empirical loss shows that Lasso is btter in this sparse setting. It is not surprising as the true <span class="math inline">\(\beta\)</span>’s are sparse so closer to the assumptions of Lasso regression model than ridge regression model.</p>
 </div>
 </div>
 <div id="problem-c" class="section level1">
@@ -1120,7 +1175,7 @@ sum((fit.lasso$beta - data_sim2$b)^2)</code></pre>
 <ol style="list-style-type: lower-alpha">
 <li>and (b) are hand-written</li>
 </ol>
-<div id="c" class="section level2">
+<div id="c-1" class="section level2">
 <h2>(c)</h2>
 <pre class="r"><code>nll &lt;- function(par, x, s){
   mu = par[1]
@@ -1204,17 +1259,17 @@ $ebnm_normal
 
 $mle
 [1] 25.50565</code></pre>
-<p><img src="figure/hw2.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/hw2.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
 <div id="comment-1" class="section level3">
 <h3>Comment:</h3>
 <ul>
-<li><span class="math inline">\(\hat{\mu}, \hat{sigma}\)</span> are both close to the true (when sample size is small like <span class="math inline">\(n= 100\)</span> we can underestimate <span class="math inline">\(\hat{sigma}\)</span> a lot; but when <span class="math inline">\(n\)</span> gets large the estimates are very good )</li>
+<li><span class="math inline">\(\hat{\mu}, \hat{sigma}\)</span> are both close to the true, when <span class="math inline">\(n\)</span> is large (when sample size is small like <span class="math inline">\(n= 100\)</span> we can underestimate <span class="math inline">\(\hat{sigma}\)</span> a lot, but <span class="math inline">\(\hat{\mu}\)</span> is more accurate)</li>
 <li>the posterior mean estimates <span class="math inline">\(\theta\)</span>’s much more accurately than MLE estimate, as we can see the (emprical) loss is <span class="math inline">\(3.4 vs 23.4\)</span></li>
 <li>Compared with <code>ebnm::ebnm_normal</code>, it seems my code gets better loss when <span class="math inline">\(|\mu|\)</span> gets larger whereas <code>ebnm::ebnm_normal</code> is better when <span class="math inline">\(\mu\)</span> is closer to <span class="math inline">\(0\)</span> (need more thorough comparisons; seems the default put mode on <span class="math inline">\(0\)</span>)</li>
 </ul>
 </div>
 </div>
-<div id="e" class="section level2">
+<div id="e-1" class="section level2">
 <h2>(e)</h2>
 <pre class="r"><code>x = c(28,8,-3,7,-1,1,18,12)
 s = c(15,10,16,11,9,11,10,18)
